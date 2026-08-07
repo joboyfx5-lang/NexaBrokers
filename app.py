@@ -19,14 +19,14 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
-    balance = db.Column(db.Float, default=10000.0)  # $10,000 starting paper balance
+    balance = db.Column(db.Float, default=10000.0)
     is_admin = db.Column(db.Boolean, default=False)
     trades = db.relationship('Trade', backref='user', lazy=True)
 
 class Trade(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     symbol = db.Column(db.String(10), nullable=False)
-    trade_type = db.Column(db.String(4), nullable=False)  # BUY or SELL
+    trade_type = db.Column(db.String(4), nullable=False)
     amount = db.Column(db.Float, nullable=False)
     price = db.Column(db.Float, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -35,10 +35,8 @@ class Trade(db.Model):
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# --- LIVE PRICE API FETCH ---
 def get_live_prices():
     try:
-        # Fetch live prices for top assets
         res = requests.get('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd', timeout=5)
         data = res.json()
         return {
@@ -49,7 +47,6 @@ def get_live_prices():
     except Exception:
         return {'BTC': 65000.0, 'ETH': 3500.0, 'SOL': 140.0}
 
-# --- TEMPLATES ---
 HTML_HEADER = """
 <!DOCTYPE html>
 <html>
@@ -63,8 +60,6 @@ HTML_HEADER = """
         .btn-primary { background-color: #0066ff; border: none; }
         .btn-success { background-color: #00c076; border: none; }
         .btn-danger { background-color: #ff3b30; border: none; }
-        .nav-link { color: #8a96a3; }
-        .nav-link.active { color: #fff; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -83,7 +78,7 @@ HTML_HEADER = """
     {% endif %}
   </div>
 </nav>
-<div class="container">
+<div class="container-fluid px-4">
 """
 
 HTML_FOOTER = """
@@ -92,7 +87,6 @@ HTML_FOOTER = """
 </html>
 """
 
-# --- ROUTES ---
 @app.route('/')
 def dashboard():
     if not current_user.is_authenticated:
@@ -102,40 +96,33 @@ def dashboard():
     
     html = HTML_HEADER + """
     <div class="row">
-        <div class="col-md-4 mb-4">
+        <!-- Interactive TradingView Chart -->
+        <div class="col-lg-8 mb-4">
             <div class="card p-3">
-                <h5>Account Portfolio</h5>
-                <h2 class="text-success">${{ "%.2f"|format(current_user.balance) }}</h2>
-                <p class="text-muted small">Virtual Paper Balance</p>
-            </div>
-        </div>
-        <div class="col-md-8 mb-4">
-            <div class="card p-3">
-                <h5>Live Market Rates</h5>
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Bitcoin (BTC)</span><strong>${{ prices['BTC'] }}</strong>
-                </div>
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <span>Ethereum (ETH)</span><strong>${{ prices['ETH'] }}</strong>
-                </div>
-                <div class="d-flex justify-content-between py-2">
-                    <span>Solana (SOL)</span><strong>${{ prices['SOL'] }}</strong>
+                <h5 class="mb-3">Live Market Chart (BTC/USD)</h5>
+                <div class="tradingview-widget-container" style="height:450px;width:100%;">
+                  <iframe src="https://s.tradingview.com/widgetembed/?frameElementId=tradingview_1&symbol=BINANCE%3ABTCUSDT&interval=D&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&studies=[]&theme=dark&style=1&timezone=Etc%2FUTC" style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row">
-        <div class="col-md-6 mb-4">
-            <div class="card p-3">
-                <h5>Execute Trade</h5>
+        <!-- Execution & Account Info -->
+        <div class="col-lg-4 mb-4">
+            <div class="card p-3 mb-3">
+                <h5>Account Balance</h5>
+                <h2 class="text-success">${{ "%.2f"|format(current_user.balance) }}</h2>
+                <p class="text-muted small">Virtual Trading Capital</p>
+            </div>
+
+            <div class="card p-3 mb-3">
+                <h5>Execute Order</h5>
                 <form action="/trade" method="POST">
                     <div class="mb-3">
-                        <label class="form-label">Asset Symbol</label>
+                        <label class="form-label">Symbol</label>
                         <select name="symbol" class="form-select bg-dark text-white border-secondary">
-                            <option value="BTC">BTC/USD</option>
-                            <option value="ETH">ETH/USD</option>
-                            <option value="SOL">SOL/USD</option>
+                            <option value="BTC">BTC/USD (${{ prices['BTC'] }})</option>
+                            <option value="ETH">ETH/USD (${{ prices['ETH'] }})</option>
+                            <option value="SOL">SOL/USD (${{ prices['SOL'] }})</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -148,19 +135,17 @@ def dashboard():
                     </div>
                 </form>
             </div>
-        </div>
-        
-        <div class="col-md-6 mb-4">
+
             <div class="card p-3">
-                <h5>Trade Execution Log</h5>
+                <h5>Recent Trades</h5>
                 <ul class="list-group list-group-flush">
                     {% for t in trades %}
-                        <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between align-items-center">
+                        <li class="list-group-item bg-dark text-white border-secondary d-flex justify-content-between">
                             <span><strong class="{{ 'text-success' if t.trade_type == 'BUY' else 'text-danger' }}">{{ t.trade_type }}</strong> {{ t.symbol }}</span>
-                            <span>${{ "%.2f"|format(t.amount) }} @ ${{ "%.2f"|format(t.price) }}</span>
+                            <span>${{ "%.2f"|format(t.amount) }}</span>
                         </li>
                     {% else %}
-                        <li class="list-group-item bg-dark text-muted">No open trades recorded yet.</li>
+                        <li class="list-group-item bg-dark text-muted">No trades opened.</li>
                     {% endfor %}
                 </ul>
             </div>
@@ -238,7 +223,6 @@ def register():
             return redirect(url_for('register'))
             
         hashed_pw = generate_password_hash(password, method='scrypt')
-        # First registered account automatically becomes system Admin
         is_admin = User.query.count() == 0
         
         new_user = User(username=username, password=hashed_pw, is_admin=is_admin)
@@ -315,7 +299,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# Ensure database tables are created at app startup
 with app.app_context():
     db.create_all()
 
