@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}NexaBrokers{% endblock %}</title>
+
+    <meta name="description"
+          content="NexaBrokers account and transaction management platform.">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #070b14;
+            --surface: #0d1422;
+            --surface-2: #121c2d;
+            --border: rgba(255,255,255,0.08);
+            --text: #f8fafc;
+            --muted: #94a3b8;
+            --primary: #38bdf8;
+            --primary-dark: #0284c7;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --radius: 16px;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            min-height: 100vh;
+            background:
+                radial-gradient(
+                    circle at top right,
+                    rgba(56,189,248,0.10),
+                    transparent 30%
+                ),
+                var(--bg);
+            color: var(--text);
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+            line-height: 1.6;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input,
+        select,
+        textarea {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        /* ---------- NAVBAR ---------- */
+
+        .navbar {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            width: 100%;
+            background: rgba(7,11,20,0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 16px 22px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+            color: #00111c;
+            font-weight: 900;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            padding: 9px 13px;
+            border-radius: 9px;
+            color: var(--muted);
+            transition: 0.2s ease;
+        }
+
+        .nav-links a:hover {
+            background: var(--surface-2);
+            color: var(--text);
+        }
+
+        /* ---------- MAIN ---------- */
+
+        main {
+            width: 100%;
+        }
+
+        .container {
+            width: min(1200px, calc(100% - 32px));
+            margin: auto;
+        }
+
+        .page {
+            padding: 50px 0;
+        }
+
+        /* ---------- CARDS ---------- */
+
+        .card {
+            background: rgba(13,20,34,0.92);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .card-subtitle {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        /* ---------- BUTTONS ---------- */
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-height: 44px;
+            padding: 10px 18px;
+            border: 0;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--primary-dark)
+            );
+            color: #00111c;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+
+        .btn-secondary {
+            background: var(--surface-2);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-danger {
+            background: rgba(239,68,68,0.12);
+            color: #fca5a5;
+            border: 1px solid rgba(239,68,68,0.25);
+        }
+
+        .btn-success {
+            background: rgba(34,197,94,0.12);
+            color: #86efac;
+            border: 1px solid rgba(34,197,94,0.25);
+        }
+
+        /* ---------- FORMS ---------- */
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 7px;
+            color: #cbd5e1;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: #0a111e;
+            color: var(--text);
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(56,189,248,0.10);
+        }
+
+        textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        /* ---------- BADGES ---------- */
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-success {
+            background: rgba(34,197,94,0.12);
+            color: #86efac;
+        }
+
+        .badge-danger {
+            background: rgba(239,68,68,0.12);
+            color: #fca5a5;
+        }
+
+        .badge-warning {
+            background: rgba(245,158,11,0.12);
+            color: #fcd34d;
+        }
+
+        .badge-info {
+            background: rgba(56,189,248,0.12);
+            color: #7dd3fc;
+        }
+
+        /* ---------- GRID ---------- */
+
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .grid-2 {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .grid-3 {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .grid-4 {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        /* ---------- TABLE ---------- */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 650px;
+        }
+
+        th,
+        td {
+            padding: 14px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        tr:last-child td {
+            border-bottom: 0;
+        }
+
+        /* ---------- ALERTS ---------- */
+
+        .alert {
+            padding: 13px 16px;
+            border-radius: 10px;
+            margin-bottom: 18px;
+            border: 1px solid var(--border);
+        }
+
+        .alert-success {
+            background: rgba(34,197,94,0.10);
+            color: #86efac;
+        }
+
+        .alert-error {
+            background: rgba(239,68,68,0.10);
+            color: #fca5a5;
+        }
+
+        .alert-info {
+            background: rgba(56,189,248,0.10);
+            color: #7dd3fc;
+        }
+
+        /* ---------- FOOTER ---------- */
+
+        footer {
+            margin-top: 70px;
+            padding: 28px 0;
+            border-top: 1px solid var(--border);
+            color: var(--muted);
+            text-align: center;
+            font-size: 0.85rem;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+
+        @media (max-width: 850px) {
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 650px) {
+            .nav-container {
+                padding: 13px 16px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                width: min(100% - 24px, 1200px);
+            }
+
+            .page {
+                padding: 30px 0;
+            }
+
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
+            }
+
+            .card {
+                padding: 18px;
+            }
+        }
+    </style>
+
+    {% block head %}{% endblock %}
+</head>
+
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+
+            <a href="/" class="brand">
+                <span class="brand-icon">N</span>
+                <span>NexaBrokers</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="/">Home</a>
+                <a href="/login-page">Login</a>
+                <a href="/signup-page">Create Account</a>
+            </div>
+
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>© {{ current_year if current_year else "2026" }} NexaBrokers. All rights reserved.</p>
+            <p style="margin-top:5px;">
+                Account and transaction management platform.
+            </p>
+        </div>
+    </footer>
+
+    {% block scripts %}{% endblock %}
+
+</body>
+</html>
