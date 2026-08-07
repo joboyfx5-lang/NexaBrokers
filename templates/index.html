@@ -1,0 +1,304 @@
+{% extends "base.html" %}
+
+{% block title %}NexaBrokers — Modern Financial Platform{% endblock %}
+
+{% block content %}
+
+<section class="page">
+    <div class="container">
+
+        <!-- HERO -->
+        <div style="
+            min-height: 70vh;
+            display: flex;
+            align-items: center;
+            padding: 50px 0;
+        ">
+            <div style="max-width: 850px;">
+
+                <div class="badge badge-info" style="margin-bottom: 20px;">
+                    ● Secure Account Platform
+                </div>
+
+                <h1 style="
+                    font-size: clamp(2.6rem, 8vw, 5.5rem);
+                    line-height: 1.02;
+                    letter-spacing: -0.055em;
+                    margin-bottom: 24px;
+                ">
+                    Your financial
+                    <span style="color: var(--primary);">
+                        platform,
+                    </span>
+                    built smarter.
+                </h1>
+
+                <p style="
+                    max-width: 700px;
+                    color: var(--muted);
+                    font-size: clamp(1rem, 2vw, 1.2rem);
+                    margin-bottom: 32px;
+                ">
+                    NexaBrokers provides a modern environment for
+                    account management, transaction requests, portfolio
+                    activity and administrative oversight.
+                </p>
+
+                <div style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 12px;
+                ">
+                    <a href="/signup-page" class="btn btn-primary">
+                        Create Account →
+                    </a>
+
+                    <a href="/login-page" class="btn btn-secondary">
+                        Sign In
+                    </a>
+                </div>
+
+                <div style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 25px;
+                    margin-top: 38px;
+                    color: var(--muted);
+                    font-size: 0.88rem;
+                ">
+                    <span>✓ Secure authentication</span>
+                    <span>✓ Transaction tracking</span>
+                    <span>✓ Admin controls</span>
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- FEATURES -->
+        <section style="padding: 40px 0 80px;">
+
+            <div style="margin-bottom: 35px;">
+                <div class="badge badge-info">
+                    PLATFORM
+                </div>
+
+                <h2 style="
+                    font-size: clamp(1.8rem, 4vw, 3rem);
+                    margin-top: 12px;
+                ">
+                    Everything in one place.
+                </h2>
+
+                <p style="
+                    color: var(--muted);
+                    max-width: 650px;
+                    margin-top: 8px;
+                ">
+                    Designed with a clean architecture that can grow
+                    from a prototype into a production-ready platform.
+                </p>
+            </div>
+
+
+            <div class="grid grid-3">
+
+                <div class="card">
+                    <div style="
+                        font-size: 2rem;
+                        margin-bottom: 18px;
+                    ">
+                        ◈
+                    </div>
+
+                    <h3 class="card-title">
+                        Account Management
+                    </h3>
+
+                    <p class="card-subtitle">
+                        Users can securely manage their accounts,
+                        view balances and monitor account activity.
+                    </p>
+                </div>
+
+
+                <div class="card">
+                    <div style="
+                        font-size: 2rem;
+                        margin-bottom: 18px;
+                    ">
+                        ⇄
+                    </div>
+
+                    <h3 class="card-title">
+                        Transaction Requests
+                    </h3>
+
+                    <p class="card-subtitle">
+                        Deposit and withdrawal requests can be
+                        submitted, tracked and reviewed through
+                        controlled workflows.
+                    </p>
+                </div>
+
+
+                <div class="card">
+                    <div style="
+                        font-size: 2rem;
+                        margin-bottom: 18px;
+                    ">
+                        ◉
+                    </div>
+
+                    <h3 class="card-title">
+                        Administrative Control
+                    </h3>
+
+                    <p class="card-subtitle">
+                        Authorized administrators can monitor users,
+                        review transactions and manage account status.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- DASHBOARD PREVIEW -->
+        <section style="padding: 20px 0 90px;">
+
+            <div class="card" style="
+                padding: 30px;
+                overflow: hidden;
+            ">
+
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 20px;
+                    margin-bottom: 28px;
+                ">
+
+                    <div>
+                        <div class="badge badge-success">
+                            SYSTEM ONLINE
+                        </div>
+
+                        <h2 style="
+                            font-size: 1.8rem;
+                            margin-top: 10px;
+                        ">
+                            Built for clarity.
+                        </h2>
+                    </div>
+
+                    <div style="
+                        width: 45px;
+                        height: 45px;
+                        border-radius: 50%;
+                        background: rgba(34,197,94,0.12);
+                        display: grid;
+                        place-items: center;
+                        color: var(--success);
+                    ">
+                        ✓
+                    </div>
+
+                </div>
+
+
+                <div class="grid grid-3">
+
+                    <div style="
+                        padding: 20px;
+                        background: var(--surface-2);
+                        border-radius: 12px;
+                    ">
+                        <p class="card-subtitle">
+                            Account Status
+                        </p>
+
+                        <h3 style="margin-top: 5px;">
+                            Active
+                        </h3>
+                    </div>
+
+
+                    <div style="
+                        padding: 20px;
+                        background: var(--surface-2);
+                        border-radius: 12px;
+                    ">
+                        <p class="card-subtitle">
+                            Transactions
+                        </p>
+
+                        <h3 style="margin-top: 5px;">
+                            Tracked
+                        </h3>
+                    </div>
+
+
+                    <div style="
+                        padding: 20px;
+                        background: var(--surface-2);
+                        border-radius: 12px;
+                    ">
+                        <p class="card-subtitle">
+                            Security
+                        </p>
+
+                        <h3 style="margin-top: 5px;">
+                            Protected
+                        </h3>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CTA -->
+        <section style="
+            text-align: center;
+            padding: 70px 20px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(56,189,248,0.10),
+                    transparent 65%
+                );
+        ">
+
+            <h2 style="
+                font-size: clamp(2rem, 5vw, 3.2rem);
+                margin-bottom: 12px;
+            ">
+                Ready to get started?
+            </h2>
+
+            <p style="
+                color: var(--muted);
+                max-width: 600px;
+                margin: 0 auto 25px;
+            ">
+                Create an account and experience the NexaBrokers
+                platform.
+            </p>
+
+            <a href="/signup-page" class="btn btn-primary">
+                Get Started →
+            </a>
+
+        </section>
+
+    </div>
+</section>
+
+{% endblock %}
