@@ -25,7 +25,7 @@ class User(db.Model):
     balance = db.Column(db.Float, default=0.0)
     status = db.Column(db.String(20), default='Active') # 'Active' or 'Suspended'
     verification_code = db.Column(db.String(6), nullable=True)
-    transactions = db.relationship('Transaction', backref='user', lazy=True)
+    transactions = db.relationship('Transaction', backref='user', lazy=True, cascade="all, delete-orphan")
 
 class Transaction(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -42,13 +42,17 @@ with app.app_context():
 @app.route('/signup', methods=['POST'])
 def signup():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid payload"}), 400
+        
     email = data.get('email')
     username = data.get('username')
 
     if not email or not username:
         return jsonify({"error": "Email and username required"}), 400
 
-    if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
+    existing = User.query.filter((User.email == email) | (User.username == username)).first()
+    if existing:
         return jsonify({"error": "Email or username already exists"}), 400
 
     code = str(random.randint(100000, 999999))
@@ -56,13 +60,14 @@ def signup():
     db.session.add(new_user)
     db.session.commit()
 
-    # For development/testing visibility, we return the code in JSON. 
-    # (In production, this code would be sent via email service).
     return jsonify({"message": "Verification code generated", "dev_code": code}), 200
 
 @app.route('/login-request', methods=['POST'])
 def login_request():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid payload"}), 400
+        
     user = User.query.filter_by(email=data.get('email')).first()
     if not user:
         return jsonify({"error": "Email not found"}), 404
@@ -76,6 +81,9 @@ def login_request():
 @app.route('/verify-code', methods=['POST'])
 def verify_code():
     data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid payload"}), 400
+        
     user = User.query.filter_by(email=data.get('email')).first()
     if not user or user.verification_code != data.get('code'):
         return jsonify({"error": "Invalid code or email"}), 400
@@ -136,12 +144,12 @@ AUTH_HTML = """
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NexaBrokers Portal</title>
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: height; padding: 40px; }
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: #1e293b; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
         input { width: 100%; padding: 10px; margin: 8px 0; background: #0f172a; border: 1px solid #334155; color: white; border-radius: 6px; box-sizing: border-box; }
         button { width: 100%; padding: 10px; background: #0284c7; color: white; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .toggle { text-align: center; margin-top: 15px; font-size: 0.85rem; color: #38bdf8; cursor: pointer; }
-        #devAlert { background: #064e3b; color: #34d399; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; display: none; }
+        #devAlert { background: #064e3b; color: #34d399; padding: 10px; border-radius: 6px; margin-top: 10px; font-size: 0.85rem; display: none; word-break: break-all; }
     </style>
 </head>
 <body>
@@ -188,7 +196,6 @@ AUTH_HTML = """
         if(res.ok) {
             document.getElementById('step1').style.display = 'none';
             document.getElementById('step2').style.display = 'block';
-            // Displaying code on screen for testing ease before SMTP setup
             const devDiv = document.getElementById('devAlert');
             devDiv.style.display = 'block';
             devDiv.innerText = `[DEV TEST CODE]: ${data.dev_code}`;
@@ -224,8 +231,8 @@ USER_DASH_HTML = """
     <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <style>
-        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; padding: 40px; }
-        .card { background: #1e293b; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; }
+        body { font-family: sans-serif; background: #0f172a; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 24px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; box-shadow: 0 10px 15px rgba(0,0,0,0.3); }
         .bal { font-size: 2rem; color: #34d399; font-weight: bold; margin: 15px 0; }
         a { color: #f87171; text-decoration: none; font-size: 0.9rem; }
     </style>
@@ -253,7 +260,7 @@ ADMIN_HTML = """
         th, td { padding: 12px; border: 1px solid #334155; text-align: left; }
         .active { color: #34d399; }
         .suspended { color: #f87171; }
-        button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; background: #0284c7; color: white; }
+        button { cursor: pointer; padding: 6px 12px; border-radius: 4px; border: none; background: #0284c7; color: white; margin-right: 4px; }
     </style>
 </head>
 <body>
@@ -306,6 +313,7 @@ def user_dashboard():
     username = session.get('username')
     if not username: return redirect(url_for('auth_page'))
     user = User.query.filter_by(username=username).first()
+    if not user: return redirect(url_for('auth_page'))
     return render_template_string(USER_DASH_HTML, user=user)
 
 @app.route('/admin')
