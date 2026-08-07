@@ -4,13 +4,13 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Fetch database URL from Render environment variables
-db_url = os.environ.get("DATABASE_URL")
-if db_url and db_url.startswith("postgres://"):
-    db_url = db_url.replace("postgres://", "postgresql://", 1)
+# Configure Database (PostgreSQL URL from Render environment variables)
+database_url = os.environ.get('DATABASE_URL')
+if database_url and database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
 
-app.config["SQLALCHEMY_DATABASE_URI"] = db_url or "sqlite:///nexabrokers.db"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = database_url or 'sqlite:///local.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
@@ -20,62 +20,43 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     balance = db.Column(db.Float, default=0.0)
 
+# Create database tables automatically on startup
 with app.app_context():
     db.create_all()
 
-# --- ROUTES ---
+# Route 1: Create User
+@app.route('/user/<username>', methods=['POST'])
+def create_user(username):
+    existing_user = User.query.filter_by(username=username).first()
+    if existing_user:
+        return jsonify({"error": "User already exists"}), 400
+    
+    new_user = User(username=username, balance=0.0)
+    db.session.add(new_user)
+    db.session.commit()
+    return jsonify({"message": f"User {username} created successfully"}), 200
 
-@app.route('/')
-def home():
-    html_content = """
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>NexaBrokers API</title>
-        <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #121212; color: #fff; text-align: center; padding: 40px 20px; }
-            .card { background: #1e1e1e; border-radius: 12px; padding: 24px; max-width: 450px; margin: auto; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-            h1 { color: #00e676; margin-bottom: 8px; }
-            p { color: #aaa; font-size: 14px; }
-            .status { display: inline-block; background: rgba(0, 230, 118, 0.15); color: #00e676; padding: 6px 12px; border-radius: 20px; font-weight: bold; margin-top: 15px; }
-        </style>
-    </head>
-    <body>
-        <div class="card">
-            <h1>NexaBrokers</h1>
-            <p>User Balance & Transaction API is running successfully.</p>
-            <div class="status">System Online ●</div>
-        </div>
-    </body>
-    </html>
-    """
-    return render_template_string(html_content)
-
-# 1. Create or view a user balance
-@app.route('/user/<username>', methods=['GET', 'POST'])
-def handle_user(username):
+# Route 2: Get User Balance (GET) / Info
+@app.route('/user/<username>', methods=['GET'])
+def get_user(username):
     user = User.query.filter_by(username=username).first()
-    if request.method == 'POST':
-        if not user:
-            user = User(username=username, balance=0.0)
-            db.session.add(user)
-            db.session.commit()
-            return jsonify({"message": f"User {username} created.", "balance": user.balance}), 201
-        return jsonify({"message": "User already exists.", "balance": user.balance}), 200
-
     if not user:
         return jsonify({"error": "User not found"}), 404
-    return jsonify({"username": user.username, "balance": user.balance})
+    return jsonify({"username": user.username, "balance": user.balance}), 200
 
-# 2. Add or Remove Funds (Admin / Deposit feature)
+# Route 3: Update Balance (Add or Remove Funds)
 @app.route('/update-balance', methods=['POST'])
 def update_balance():
-    data = request.get_json() or {}
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Invalid JSON payload"}), 400
+
     username = data.get('username')
     amount = data.get('amount')
-    action = data.get('action')  # "add" or "remove"
+    action = data.get('action') # 'add' or 'remove'
+
+    if not username or amount is None or action not in ['add', 'remove']:
+        return jsonify({"error": "Missing or invalid parameters"}), 400
 
     user = User.query.filter_by(username=username).first()
     if not user:
@@ -83,57 +64,20 @@ def update_balance():
 
     try:
         amount = float(amount)
-        if amount <= 0:
-            return jsonify({"error": "Amount must be greater than zero"}), 400
-    except (ValueError, TypeError):
-        return jsonify({"error": "Invalid amount specified"}), 400
+    except ValueError:
+        return jsonify({"error": "Amount must be a number"}), 400
 
-    if action == "add":
+    if action == 'add':
         user.balance += amount
-    elif action == "remove":
+    elif action == 'remove':
         if user.balance < amount:
-            return jsonify({"error": "Insufficient balance to perform reduction"}), 400
+            return jsonify({"error": "Insufficient balance"}), 400
         user.balance -= amount
-    else:
-        return jsonify({"error": "Action must be 'add' or 'remove'"}), 400
 
     db.session.commit()
-    return jsonify({"message": f"Successfully updated balance for {username}", "new_balance": user.balance})
+    return jsonify({"message": "Balance updated successfully", "new_balance": user.balance}), 200
 
-# 3. Withdraw Funds Feature
-@app.route('/withdraw', methods=['POST'])
-def withdraw():
-    data = request.get_json() or {}
-    username = data.get('username')
-    amount = data.get('amount')
-
-    user = User.query.filter_by(username=username).first()
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-
-    try:
-        amount = float(amount)
-        if amount <= 0:
-            return jsonify({"error": "Withdrawal amount must be greater than zero"}), 400
-    except (ValueError, TypeError):
-        return jsonify({"error": "Invalid withdrawal amount"}), 400
-
-    if user.balance < amount:
-        return jsonify({"error": "Insufficient funds for withdrawal"}), 400
-
-    user.balance -= amount
-    db.session.commit()
-
-    return jsonify({
-        "status": "success",
-        "message": f"Withdrawal of ${amount:.2f} processed successfully.",
-        "remaining_balance": user.balance
-    })
-
-if __name__ == '__main__':
-    app.run()y
-
-# 3. Admin Dashboard UI
+# Route 4: Admin Dashboard UI
 ADMIN_HTML = """
 <!DOCTYPE html>
 <html lang="en">
@@ -220,3 +164,6 @@ ADMIN_HTML = """
 def admin_panel():
     return render_template_string(ADMIN_HTML)
 
+if __name__ == '__main__':
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
