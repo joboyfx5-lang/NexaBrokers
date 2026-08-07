@@ -1,0 +1,744 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | NexaBrokers{% endblock %}
+
+{% block content %}
+
+<style>
+    .dashboard {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 35px 20px 60px;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+    }
+
+    .dashboard-header h1 {
+        margin: 0;
+        font-size: 32px;
+        color: white;
+    }
+
+    .dashboard-header p {
+        margin: 8px 0 0;
+        color: #94a3b8;
+    }
+
+    .logout-btn {
+        border: 1px solid #334155;
+        background: #111827;
+        color: #cbd5e1;
+        padding: 11px 18px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .logout-btn:hover {
+        border-color: #38bdf8;
+        color: #38bdf8;
+    }
+
+    .balance-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-bottom: 25px;
+    }
+
+    .balance-card {
+        background: linear-gradient(145deg, #111827, #0f172a);
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 20px;
+        padding: 25px;
+        min-height: 130px;
+    }
+
+    .balance-card.primary {
+        background: linear-gradient(135deg, #0ea5e9, #4f46e5);
+        border: none;
+    }
+
+    .card-label {
+        color: #94a3b8;
+        font-size: 13px;
+        margin-bottom: 15px;
+    }
+
+    .primary .card-label {
+        color: rgba(255,255,255,.75);
+    }
+
+    .balance-value {
+        font-size: 30px;
+        font-weight: 800;
+        color: white;
+    }
+
+    .section {
+        background: #111827;
+        border: 1px solid rgba(255,255,255,.08);
+        border-radius: 20px;
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 22px;
+        flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+        margin: 0;
+        color: white;
+        font-size: 20px;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+    }
+
+    .action-card {
+        padding: 22px;
+        border-radius: 15px;
+        background: #0f172a;
+        border: 1px solid #1e293b;
+    }
+
+    .action-card h3 {
+        margin: 0 0 8px;
+        color: white;
+    }
+
+    .action-card p {
+        color: #64748b;
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .action-card form {
+        margin-top: 18px;
+    }
+
+    .input-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+    }
+
+    input,
+    select {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 13px;
+        border-radius: 10px;
+        border: 1px solid #334155;
+        background: #111827;
+        color: white;
+        outline: none;
+    }
+
+    input:focus,
+    select:focus {
+        border-color: #38bdf8;
+    }
+
+    .action-btn {
+        width: 100%;
+        margin-top: 10px;
+        padding: 13px;
+        border: none;
+        border-radius: 10px;
+        background: #38bdf8;
+        color: #07111c;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .action-btn:hover {
+        background: #0ea5e9;
+    }
+
+    .withdraw-btn {
+        background: #6366f1;
+        color: white;
+    }
+
+    .withdraw-btn:hover {
+        background: #4f46e5;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 700px;
+    }
+
+    th {
+        text-align: left;
+        color: #64748b;
+        font-size: 12px;
+        padding: 13px;
+        border-bottom: 1px solid #1e293b;
+    }
+
+    td {
+        padding: 15px 13px;
+        color: #cbd5e1;
+        font-size: 13px;
+        border-bottom: 1px solid #1e293b;
+    }
+
+    .status {
+        display: inline-block;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    .pending {
+        background: rgba(234,179,8,.12);
+        color: #facc15;
+    }
+
+    .approved {
+        background: rgba(34,197,94,.12);
+        color: #4ade80;
+    }
+
+    .rejected {
+        background: rgba(239,68,68,.12);
+        color: #f87171;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 35px 10px;
+        color: #64748b;
+    }
+
+    .notice {
+        display: none;
+        padding: 13px 15px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+        font-size: 14px;
+    }
+
+    .notice.success {
+        display: block;
+        background: rgba(34,197,94,.1);
+        color: #4ade80;
+        border: 1px solid rgba(34,197,94,.2);
+    }
+
+    .notice.error {
+        display: block;
+        background: rgba(239,68,68,.1);
+        color: #f87171;
+        border: 1px solid rgba(239,68,68,.2);
+    }
+
+    .account-info {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .info-item {
+        background: #0f172a;
+        border-radius: 12px;
+        padding: 15px;
+    }
+
+    .info-item span {
+        display: block;
+        color: #64748b;
+        font-size: 12px;
+        margin-bottom: 6px;
+    }
+
+    .info-item strong {
+        color: #e2e8f0;
+        font-size: 14px;
+        word-break: break-word;
+    }
+
+    @media (max-width: 800px) {
+        .balance-grid,
+        .account-info {
+            grid-template-columns: 1fr;
+        }
+
+        .action-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header h1 {
+            font-size: 26px;
+        }
+    }
+</style>
+
+<div class="dashboard">
+
+    <div class="dashboard-header">
+        <div>
+            <h1>Welcome back<span id="username"></span></h1>
+            <p>Manage your account and transaction requests.</p>
+        </div>
+
+        <button class="logout-btn" onclick="logout()">
+            Log out
+        </button>
+    </div>
+
+    <div id="notice" class="notice"></div>
+
+    <!-- BALANCE CARDS -->
+
+    <div class="balance-grid">
+
+        <div class="balance-card primary">
+            <div class="card-label">Available Balance</div>
+            <div class="balance-value" id="balance">$0.00</div>
+        </div>
+
+        <div class="balance-card">
+            <div class="card-label">Account Status</div>
+            <div class="balance-value" id="accountStatus"
+                 style="font-size:20px;">
+                Loading...
+            </div>
+        </div>
+
+        <div class="balance-card">
+            <div class="card-label">Verification</div>
+            <div class="balance-value" id="verificationStatus"
+                 style="font-size:20px;">
+                Loading...
+            </div>
+        </div>
+
+    </div>
+
+    <!-- TRANSACTION ACTIONS -->
+
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Transaction Requests</h2>
+        </div>
+
+        <div class="action-grid">
+
+            <!-- DEPOSIT -->
+
+            <div class="action-card">
+
+                <h3>Deposit</h3>
+
+                <p>
+                    Submit a deposit request for administrator review.
+                </p>
+
+                <form onsubmit="submitTransaction(event, 'Deposit')">
+
+                    <div class="input-row">
+
+                        <input
+                            type="number"
+                            name="amount"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="Amount"
+                            required
+                        >
+
+                        <select name="crypto_currency">
+                            <option value="USDT">USDT</option>
+                            <option value="BTC">BTC</option>
+                            <option value="ETH">ETH</option>
+                            <option value="USD">USD</option>
+                        </select>
+
+                    </div>
+
+                    <input
+                        type="text"
+                        name="txid"
+                        maxlength="255"
+                        placeholder="Transaction ID (optional)"
+                        style="margin-top:10px;"
+                    >
+
+                    <button class="action-btn" type="submit">
+                        Submit Deposit
+                    </button>
+
+                </form>
+
+            </div>
+
+            <!-- WITHDRAWAL -->
+
+            <div class="action-card">
+
+                <h3>Withdrawal</h3>
+
+                <p>
+                    Submit a withdrawal request for administrator review.
+                </p>
+
+                <form onsubmit="submitTransaction(event, 'Withdrawal')">
+
+                    <div class="input-row">
+
+                        <input
+                            type="number"
+                            name="amount"
+                            min="0.01"
+                            step="0.01"
+                            placeholder="Amount"
+                            required
+                        >
+
+                        <select name="crypto_currency">
+                            <option value="USDT">USDT</option>
+                            <option value="BTC">BTC</option>
+                            <option value="ETH">ETH</option>
+                            <option value="USD">USD</option>
+                        </select>
+
+                    </div>
+
+                    <input
+                        type="text"
+                        name="txid"
+                        maxlength="255"
+                        placeholder="Transaction reference (optional)"
+                        style="margin-top:10px;"
+                    >
+
+                    <button
+                        class="action-btn withdraw-btn"
+                        type="submit"
+                    >
+                        Request Withdrawal
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- TRANSACTION HISTORY -->
+
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Transaction History</h2>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Currency</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody id="transactionBody">
+
+                    <tr>
+                        <td colspan="6" class="empty-state">
+                            Loading transactions...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- ACCOUNT INFORMATION -->
+
+    <div class="section">
+
+        <div class="section-header">
+            <h2>Account Information</h2>
+        </div>
+
+        <div class="account-info">
+
+            <div class="info-item">
+                <span>Username</span>
+                <strong id="userUsername">—</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Email</span>
+                <strong id="userEmail">—</strong>
+            </div>
+
+            <div class="info-item">
+                <span>Account ID</span>
+                <strong id="userId">—</strong>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function showNotice(message, type) {
+
+    const notice = document.getElementById("notice");
+
+    notice.textContent = message;
+    notice.className = "notice " + type;
+
+    setTimeout(() => {
+        notice.className = "notice";
+        notice.textContent = "";
+    }, 5000);
+}
+
+
+async function loadDashboard() {
+
+    try {
+
+        const response = await fetch("/dashboard");
+
+        if (response.status === 401) {
+            window.location.href = "/login-page";
+            return;
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            showNotice(data.error || "Unable to load dashboard.", "error");
+            return;
+        }
+
+        const user = data.user;
+
+        document.getElementById("username").textContent =
+            user.username ? ", " + user.username : "";
+
+        document.getElementById("balance").textContent =
+            "$" + Number(user.balance).toLocaleString(
+                undefined,
+                {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }
+            );
+
+        document.getElementById("accountStatus").textContent =
+            user.is_active ? "Active" : "Disabled";
+
+        document.getElementById("verificationStatus").textContent =
+            user.is_verified ? "Verified" : "Unverified";
+
+        document.getElementById("userUsername").textContent =
+            user.username || "—";
+
+        document.getElementById("userEmail").textContent =
+            user.email || "—";
+
+        document.getElementById("userId").textContent =
+            user.id || "—";
+
+        renderTransactions(data.transactions || []);
+
+    } catch (error) {
+
+        console.error(error);
+
+        showNotice(
+            "Could not connect to the server.",
+            "error"
+        );
+    }
+}
+
+
+function renderTransactions(transactions) {
+
+    const body = document.getElementById("transactionBody");
+
+    if (!transactions.length) {
+
+        body.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-state">
+                    No transactions yet.
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    body.innerHTML = transactions.map(tx => {
+
+        const statusClass =
+            String(tx.status).toLowerCase();
+
+        const date = tx.created_at
+            ? new Date(tx.created_at).toLocaleString()
+            : "—";
+
+        return `
+            <tr>
+                <td>#${tx.id}</td>
+
+                <td>${escapeHtml(tx.type)}</td>
+
+                <td>$${Number(tx.amount).toLocaleString(
+                    undefined,
+                    {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2
+                    }
+                )}</td>
+
+                <td>${escapeHtml(tx.currency)}</td>
+
+                <td>
+                    <span class="status ${statusClass}">
+                        ${escapeHtml(tx.status)}
+                    </span>
+                </td>
+
+                <td>${escapeHtml(date)}</td>
+            </tr>
+        `;
+
+    }).join("");
+}
+
+
+async function submitTransaction(event, type) {
+
+    event.preventDefault();
+
+    const form = event.target;
+    const formData = new FormData(form);
+
+    formData.append("type", type);
+
+    try {
+
+        const response = await fetch(
+            "/wallet/request",
+            {
+                method: "POST",
+                body: formData
+            }
+        );
+
+        const data = await response.json();
+
+        if (!response.ok) {
+
+            showNotice(
+                data.error || "Transaction request failed.",
+                "error"
+            );
+
+            return;
+        }
+
+        showNotice(
+            data.message || "Transaction request submitted.",
+            "success"
+        );
+
+        form.reset();
+
+        loadDashboard();
+
+    } catch (error) {
+
+        console.error(error);
+
+        showNotice(
+            "Could not connect to the server.",
+            "error"
+        );
+    }
+}
+
+
+async function logout() {
+
+    try {
+
+        await fetch(
+            "/logout",
+            {
+                method: "POST"
+            }
+        );
+
+    } finally {
+
+        window.location.href = "/login-page";
+    }
+}
+
+
+function escapeHtml(value) {
+
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+
+loadDashboard();
+
+</script>
+
+{% endblock %}
