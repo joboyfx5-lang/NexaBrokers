@@ -71,11 +71,110 @@ def send_email_code(to_email, code):
         print("SMTP Error:", e)
         return False
 
-# --- ROUTES: FRONTEND VIEWS ---
+# --- ROUTES: FRONTEND VIEWS & LANDING PAGE ---
 
 @app.route('/')
 def home():
-    return "NexaBrokers Platform is Online and Active!"
+    return """
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NexaBrokers | Professional Online Trading & Investments</title>
+        <style>
+            body {
+                margin: 0;
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: #0b0f19;
+                color: #ffffff;
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+                justify-content: space-between;
+            }
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 60px 20px;
+                text-align: center;
+            }
+            h1 {
+                font-size: 3rem;
+                color: #38bdf8;
+                margin-bottom: 15px;
+            }
+            p.subtitle {
+                font-size: 1.2rem;
+                color: #94a3b8;
+                margin-bottom: 40px;
+            }
+            .btn-group {
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                margin-bottom: 50px;
+            }
+            .btn {
+                padding: 12px 30px;
+                font-size: 1rem;
+                font-weight: bold;
+                border-radius: 6px;
+                text-decoration: none;
+                transition: background 0.3s ease;
+            }
+            .btn-primary {
+                background-color: #38bdf8;
+                color: #0b0f19;
+            }
+            .btn-primary:hover {
+                background-color: #0ea5e9;
+            }
+            .btn-secondary {
+                background-color: transparent;
+                border: 2px solid #38bdf8;
+                color: #38bdf8;
+            }
+            .btn-secondary:hover {
+                background-color: rgba(56, 189, 248, 0.1);
+            }
+            footer {
+                background-color: #07090e;
+                padding: 20px;
+                text-align: center;
+                font-size: 0.85rem;
+                color: #64748b;
+                border-top: 1px solid #1e293b;
+            }
+            footer a {
+                color: #38bdf8;
+                text-decoration: none;
+                margin: 0 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>NexaBrokers</h1>
+            <p class="subtitle">Institutional-Grade Multi-Asset Trading & Secure Crypto Investment Platform</p>
+            
+            <div class="btn-group">
+                <a href="/login-page" class="btn btn-primary">Login to Account</a>
+                <a href="/signup-page" class="btn btn-secondary">Create Account</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2026 NexaBrokers International Ltd. All rights reserved.</p>
+            <div>
+                <a href="/terms">Terms of Service</a> | 
+                <a href="/privacy">Privacy Policy</a> | 
+                <a href="/compliance">Regulatory Disclosure</a>
+            </div>
+        </footer>
+    </body>
+    </html>
+    """
 
 @app.route('/terms')
 def terms():
