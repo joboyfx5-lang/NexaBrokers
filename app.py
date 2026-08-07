@@ -1,7 +1,7 @@
 import os
 import random
 from datetime import datetime
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask import Flask, render_template, request, jsonify, session
 from flask_sqlalchemy import SQLAlchemy
 import smtplib
 from email.mime.text import MIMEText
@@ -70,6 +70,42 @@ def send_email_code(to_email, code):
     except Exception as e:
         print("SMTP Error:", e)
         return False
+
+# --- ROUTES: FRONTEND VIEWS ---
+
+@app.route('/')
+def home():
+    return "NexaBrokers Platform is Online and Active!"
+
+@app.route('/terms')
+def terms():
+    return """
+    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333;">
+        <h1>Terms of Service</h1>
+        <p>Welcome to NexaBrokers. By using our platform, you agree to our standard terms and conditions regarding financial trading and account usage.</p>
+        <a href="/">Back to Home</a>
+    </div>
+    """
+
+@app.route('/privacy')
+def privacy():
+    return """
+    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333;">
+        <h1>Privacy Policy</h1>
+        <p>Your privacy is important to us. We securely encrypt and protect all user data, credentials, and transaction logs.</p>
+        <a href="/">Back to Home</a>
+    </div>
+    """
+
+@app.route('/compliance')
+def compliance():
+    return """
+    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; color: #333;">
+        <h1>Regulatory Disclosure & Risk Warning</h1>
+        <p>Trading financial assets and cryptocurrencies involves high risks. Client funds are handled in secure environments, but you should never trade with capital you cannot afford to lose.</p>
+        <a href="/">Back to Home</a>
+    </div>
+    """
 
 # --- ROUTES: AUTH & USER ---
 
@@ -156,20 +192,6 @@ def wallet_request():
     db.session.commit()
     
     return jsonify({"message": f"{crypto_currency} {tx_type} request of ${amount} submitted successfully. It will be processed after confirmation."})
-
-# --- ROUTES: LEGAL & COMPLIANCE PAGES ---
-
-@app.route('/terms')
-def terms():
-    return "<h1>Terms of Service</h1><p>Welcome to NexaBrokers. By using our platform, you agree to our standard terms and conditions...</p>"
-
-@app.route('/privacy')
-def privacy():
-    return "<h1>Privacy Policy</h1><p>Your privacy is important to us. We securely encrypt and protect user data...</p>"
-
-@app.route('/compliance')
-def compliance():
-    return "<h1>Regulatory Disclosure</h1><p>Trading financial assets involves high risks. Client funds are handled in secure segregated environments...</p>"
 
 if __name__ == '__main__':
     with app.app_context():
