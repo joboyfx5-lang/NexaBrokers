@@ -1,1297 +1,1284 @@
 {% extends "base.html" %}
 
-{% block title %}Admin Control Center | NexaBrokers{% endblock %}
+{% block title %}
+Admin Dashboard — NexaBrokers
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .admin-page {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 30px 20px 60px;
-    }
+<section class="dashboard">
 
-    .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-    }
+    <div class="container">
 
-    .admin-header h1 {
-        margin: 0;
-        color: white;
-        font-size: 32px;
-    }
+        <!-- HEADER -->
 
-    .admin-header p {
-        color: #94a3b8;
-        margin: 8px 0 0;
-    }
+        <div class="dashboard-header">
 
-    .admin-badge {
-        display: inline-block;
-        margin-top: 10px;
-        padding: 6px 10px;
-        border-radius: 999px;
-        background: rgba(56,189,248,.1);
-        color: #38bdf8;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: .5px;
-    }
+            <div>
 
-    .logout-btn {
-        padding: 11px 18px;
-        border-radius: 10px;
-        border: 1px solid #334155;
-        background: #111827;
-        color: #cbd5e1;
-        cursor: pointer;
-        font-weight: 600;
-    }
+                <div class="badge">
+                    Administration
+                </div>
 
-    .logout-btn:hover {
-        border-color: #38bdf8;
-        color: #38bdf8;
-    }
+                <h1>
+                    Admin Dashboard
+                </h1>
 
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 15px;
-        margin-bottom: 25px;
-    }
+                <p>
+                    Manage users, review transactions,
+                    and monitor platform activity.
+                </p>
 
-    .stat-card {
-        background: #111827;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 18px;
-        padding: 20px;
-    }
-
-    .stat-label {
-        color: #64748b;
-        font-size: 12px;
-        margin-bottom: 10px;
-    }
-
-    .stat-value {
-        color: white;
-        font-size: 27px;
-        font-weight: 800;
-    }
-
-    .panel {
-        background: #111827;
-        border: 1px solid rgba(255,255,255,.07);
-        border-radius: 20px;
-        padding: 24px;
-        margin-bottom: 25px;
-    }
-
-    .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-    }
-
-    .panel-header h2 {
-        margin: 0;
-        color: white;
-        font-size: 20px;
-    }
-
-    .refresh-btn {
-        padding: 9px 14px;
-        border: 1px solid #334155;
-        border-radius: 9px;
-        background: #0f172a;
-        color: #cbd5e1;
-        cursor: pointer;
-    }
-
-    .refresh-btn:hover {
-        border-color: #38bdf8;
-        color: #38bdf8;
-    }
-
-    .table-wrapper {
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 900px;
-    }
-
-    th {
-        text-align: left;
-        padding: 13px;
-        border-bottom: 1px solid #1e293b;
-        color: #64748b;
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: .5px;
-    }
-
-    td {
-        padding: 15px 13px;
-        border-bottom: 1px solid #1e293b;
-        color: #cbd5e1;
-        font-size: 13px;
-    }
-
-    .status {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 999px;
-        font-size: 10px;
-        font-weight: 700;
-    }
-
-    .active {
-        background: rgba(34,197,94,.1);
-        color: #4ade80;
-    }
-
-    .inactive {
-        background: rgba(239,68,68,.1);
-        color: #f87171;
-    }
-
-    .pending {
-        background: rgba(234,179,8,.1);
-        color: #facc15;
-    }
-
-    .approved {
-        background: rgba(34,197,94,.1);
-        color: #4ade80;
-    }
-
-    .rejected {
-        background: rgba(239,68,68,.1);
-        color: #f87171;
-    }
-
-    .admin-btn {
-        border: none;
-        border-radius: 8px;
-        padding: 8px 11px;
-        cursor: pointer;
-        font-size: 11px;
-        font-weight: 700;
-        margin: 2px;
-    }
-
-    .approve-btn {
-        background: #22c55e;
-        color: #052e16;
-    }
-
-    .reject-btn {
-        background: #ef4444;
-        color: white;
-    }
-
-    .view-btn {
-        background: #334155;
-        color: white;
-    }
-
-    .disable-btn {
-        background: #7f1d1d;
-        color: white;
-    }
-
-    .enable-btn {
-        background: #14532d;
-        color: white;
-    }
-
-    .balance-btn {
-        background: #2563eb;
-        color: white;
-    }
-
-    .empty {
-        text-align: center;
-        padding: 35px;
-        color: #64748b;
-    }
-
-    .notice {
-        display: none;
-        padding: 13px 15px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-
-    .notice.success {
-        display: block;
-        color: #4ade80;
-        background: rgba(34,197,94,.1);
-        border: 1px solid rgba(34,197,94,.2);
-    }
-
-    .notice.error {
-        display: block;
-        color: #f87171;
-        background: rgba(239,68,68,.1);
-        border: 1px solid rgba(239,68,68,.2);
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,.72);
-        z-index: 1000;
-        padding: 20px;
-        overflow-y: auto;
-    }
-
-    .modal.show {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .modal-card {
-        width: 100%;
-        max-width: 500px;
-        background: #111827;
-        border: 1px solid #334155;
-        border-radius: 20px;
-        padding: 25px;
-    }
-
-    .modal-card h3 {
-        color: white;
-        margin-top: 0;
-    }
-
-    .modal-card label {
-        display: block;
-        color: #94a3b8;
-        font-size: 12px;
-        margin: 15px 0 7px;
-    }
-
-    .modal-card input,
-    .modal-card select,
-    .modal-card textarea {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px;
-        border-radius: 9px;
-        border: 1px solid #334155;
-        background: #0f172a;
-        color: white;
-        outline: none;
-    }
-
-    .modal-card textarea {
-        min-height: 100px;
-        resize: vertical;
-    }
-
-    .modal-actions {
-        display: flex;
-        gap: 10px;
-        margin-top: 20px;
-    }
-
-    .modal-actions button {
-        flex: 1;
-        padding: 12px;
-        border-radius: 9px;
-        border: none;
-        cursor: pointer;
-        font-weight: 700;
-    }
-
-    .cancel-btn {
-        background: #334155;
-        color: white;
-    }
-
-    .confirm-btn {
-        background: #38bdf8;
-        color: #07111c;
-    }
-
-    .user-details {
-        background: #0f172a;
-        padding: 15px;
-        border-radius: 12px;
-        margin-top: 15px;
-        color: #cbd5e1;
-        line-height: 1.7;
-        font-size: 13px;
-    }
-
-    @media (max-width: 1100px) {
-        .stats-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @media (max-width: 650px) {
-        .stats-grid {
-            grid-template-columns: 1fr 1fr;
-        }
-
-        .admin-header h1 {
-            font-size: 25px;
-        }
-    }
-</style>
-
-
-<div class="admin-page">
-
-    <div class="admin-header">
-
-        <div>
-            <h1>Admin Control Center</h1>
-
-            <p>
-                Monitor users, balances and transaction requests.
-            </p>
-
-            <span class="admin-badge">
-                ADMINISTRATOR ACCESS
-            </span>
-        </div>
-
-        <button class="logout-btn" onclick="logout()">
-            Log out
-        </button>
-
-    </div>
-
-
-    <div id="notice" class="notice"></div>
-
-
-    <!-- STATISTICS -->
-
-    <div class="stats-grid">
-
-        <div class="stat-card">
-            <div class="stat-label">Total Users</div>
-            <div class="stat-value" id="totalUsers">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-label">Active Users</div>
-            <div class="stat-value" id="activeUsers">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-label">Pending</div>
-            <div class="stat-value" id="pendingTransactions">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-label">Approved</div>
-            <div class="stat-value" id="approvedTransactions">0</div>
-        </div>
-
-        <div class="stat-card">
-            <div class="stat-label">Rejected</div>
-            <div class="stat-value" id="rejectedTransactions">0</div>
-        </div>
-
-    </div>
-
-
-    <!-- USERS -->
-
-    <div class="panel">
-
-        <div class="panel-header">
-
-            <h2>User Management</h2>
-
-            <button class="refresh-btn" onclick="loadAll()">
-                ↻ Refresh
-            </button>
-
-        </div>
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Email</th>
-                        <th>Balance</th>
-                        <th>Status</th>
-                        <th>Verification</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-
-                <tbody id="usersBody">
-                    <tr>
-                        <td colspan="7" class="empty">
-                            Loading users...
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-
-    <!-- TRANSACTIONS -->
-
-    <div class="panel">
-
-        <div class="panel-header">
-
-            <h2>Transaction Management</h2>
-
-            <button class="refresh-btn" onclick="loadTransactions()">
-                ↻ Refresh
-            </button>
-
-        </div>
-
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>User</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Currency</th>
-                        <th>TXID</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-
-                <tbody id="transactionsBody">
-                    <tr>
-                        <td colspan="8" class="empty">
-                            Loading transactions...
-                        </td>
-                    </tr>
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- BALANCE MODAL -->
-
-<div class="modal" id="balanceModal">
-
-    <div class="modal-card">
-
-        <h3>Adjust User Balance</h3>
-
-        <div id="balanceUserDetails" class="user-details"></div>
-
-        <label>Action</label>
-
-        <select id="balanceDirection">
-            <option value="add">Add Balance</option>
-            <option value="remove">Remove Balance</option>
-        </select>
-
-        <label>Amount</label>
-
-        <input
-            id="balanceAmount"
-            type="number"
-            min="0.01"
-            step="0.01"
-            placeholder="0.00"
-        >
-
-        <label>Reason</label>
-
-        <textarea
-            id="balanceReason"
-            maxlength="500"
-            placeholder="Enter the reason for this adjustment..."
-        ></textarea>
-
-        <div class="modal-actions">
+            </div>
 
             <button
-                class="cancel-btn"
-                onclick="closeModal('balanceModal')"
+                type="button"
+                class="btn btn-secondary"
+                id="logoutButton"
             >
-                Cancel
-            </button>
-
-            <button
-                class="confirm-btn"
-                onclick="submitBalanceAdjustment()"
-            >
-                Confirm
+                Sign Out
             </button>
 
         </div>
 
-    </div>
 
-</div>
+        <!-- MESSAGE -->
+
+        <div
+            id="message"
+            class="alert"
+            style="display:none;"
+        ></div>
 
 
-<!-- TRANSACTION REVIEW MODAL -->
+        <!-- OVERVIEW -->
 
-<div class="modal" id="transactionModal">
+        <div class="grid grid-3">
 
-    <div class="modal-card">
+            <div class="stat-card">
 
-        <h3>Review Transaction</h3>
+                <div class="stat-label">
+                    Total Users
+                </div>
 
-        <div id="transactionDetails" class="user-details"></div>
+                <div
+                    class="stat-value"
+                    id="totalUsers"
+                >
+                    0
+                </div>
 
-        <label>Admin Note</label>
+            </div>
 
-        <textarea
-            id="transactionNote"
-            maxlength="500"
-            placeholder="Optional review note..."
-        ></textarea>
 
-        <div class="modal-actions">
+            <div class="stat-card">
 
-            <button
-                class="cancel-btn"
-                onclick="closeModal('transactionModal')"
-            >
-                Cancel
-            </button>
+                <div class="stat-label">
+                    Active Users
+                </div>
 
-            <button
-                class="confirm-btn"
-                id="reviewConfirmButton"
-            >
-                Confirm
-            </button>
+                <div
+                    class="stat-value"
+                    id="activeUsers"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Pending Transactions
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="pendingTransactions"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Approved Transactions
+                </div>
+
+                <div
+                    class="stat-value positive"
+                    id="approvedTransactions"
+                >
+                    0
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Rejected Transactions
+                </div>
+
+                <div
+                    class="stat-value negative"
+                    id="rejectedTransactions"
+                >
+                    0
+                </div>
+
+            </div>
 
         </div>
 
+
+        <!-- TRANSACTIONS -->
+
+        <section class="section">
+
+            <div class="card">
+
+                <div class="dashboard-header">
+
+                    <div>
+
+                        <div class="badge">
+                            Transaction Management
+                        </div>
+
+                        <h2>
+                            Transaction Requests
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="refreshTransactions"
+                    >
+                        Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    User
+                                </th>
+
+                                <th>
+                                    Type
+                                </th>
+
+                                <th>
+                                    Amount
+                                </th>
+
+                                <th>
+                                    Currency
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Date
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="transactionTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="7"
+                                    style="text-align:center;"
+                                >
+                                    Loading transactions...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- USERS -->
+
+        <section class="section">
+
+            <div class="card">
+
+                <div class="dashboard-header">
+
+                    <div>
+
+                        <div class="badge">
+                            User Management
+                        </div>
+
+                        <h2>
+                            Registered Users
+                        </h2>
+
+                    </div>
+
+                    <button
+                        type="button"
+                        class="btn btn-secondary"
+                        id="refreshUsers"
+                    >
+                        Refresh
+                    </button>
+
+                </div>
+
+
+                <div class="table-wrapper">
+
+                    <table>
+
+                        <thead>
+
+                            <tr>
+
+                                <th>
+                                    Username
+                                </th>
+
+                                <th>
+                                    Email
+                                </th>
+
+                                <th>
+                                    Balance
+                                </th>
+
+                                <th>
+                                    Verification
+                                </th>
+
+                                <th>
+                                    Status
+                                </th>
+
+                                <th>
+                                    Action
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+
+                        <tbody id="userTable">
+
+                            <tr>
+
+                                <td
+                                    colspan="6"
+                                    style="text-align:center;"
+                                >
+                                    Loading users...
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- BALANCE MANAGEMENT -->
+
+        <section class="section">
+
+            <div class="card">
+
+                <div class="badge">
+                    Balance Management
+                </div>
+
+                <h2>
+                    Adjust User Balance
+                </h2>
+
+                <p>
+                    Record an administrative balance adjustment
+                    with a required reason.
+                </p>
+
+
+                <form
+                    id="balanceForm"
+                    style="margin-top:20px;"
+                >
+
+                    <div class="grid grid-2">
+
+                        <div class="form-group">
+
+                            <label for="balanceUser">
+                                User ID
+                            </label>
+
+                            <input
+                                id="balanceUser"
+                                type="number"
+                                min="1"
+                                placeholder="User ID"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="balanceAmount">
+                                Amount
+                            </label>
+
+                            <input
+                                id="balanceAmount"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="balanceDirection">
+                                Direction
+                            </label>
+
+                            <select
+                                id="balanceDirection"
+                                required
+                            >
+
+                                <option value="add">
+                                    Add
+                                </option>
+
+                                <option value="remove">
+                                    Remove
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="balanceReason">
+                                Reason
+                            </label>
+
+                            <input
+                                id="balanceReason"
+                                type="text"
+                                maxlength="500"
+                                placeholder="Reason for adjustment"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary"
+                    >
+                        Update Balance
+                    </button>
+
+                </form>
+
+            </div>
+
+        </section>
+
     </div>
 
-</div>
+</section>
 
+{% endblock %}
+
+
+{% block scripts %}
 
 <script>
 
-let selectedUserId = null;
-let selectedTransactionId = null;
-let selectedTransactionAction = null;
+const message =
+    document.getElementById("message");
 
 
-function showNotice(message, type) {
+function showMessage(text, success = false) {
 
-    const notice = document.getElementById("notice");
+    message.textContent = text;
 
-    notice.textContent = message;
-    notice.className = "notice " + type;
+    message.className =
+        success
+            ? "alert alert-success"
+            : "alert alert-danger";
 
-    setTimeout(() => {
-        notice.textContent = "";
-        notice.className = "notice";
-    }, 5000);
-}
+    message.style.display =
+        "block";
 
-
-async function apiRequest(url, options = {}) {
-
-    const response = await fetch(url, options);
-
-    let data = {};
-
-    try {
-        data = await response.json();
-    } catch {
-        data = {};
-    }
-
-    if (response.status === 401 || response.status === 403) {
-
-        showNotice(
-            data.error || "Administrator access required.",
-            "error"
-        );
-
-        if (response.status === 401) {
-            setTimeout(() => {
-                window.location.href = "/admin-page";
-            }, 1000);
-        }
-
-        throw new Error(
-            data.error || "Access denied."
-        );
-    }
-
-    if (!response.ok) {
-        throw new Error(
-            data.error || "Request failed."
-        );
-    }
-
-    return data;
-}
-
-
-async function loadOverview() {
-
-    try {
-
-        const data = await apiRequest(
-            "/admin/overview"
-        );
-
-        document.getElementById("totalUsers").textContent =
-            data.users;
-
-        document.getElementById("activeUsers").textContent =
-            data.active_users;
-
-        document.getElementById("pendingTransactions").textContent =
-            data.pending_transactions;
-
-        document.getElementById("approvedTransactions").textContent =
-            data.approved_transactions;
-
-        document.getElementById("rejectedTransactions").textContent =
-            data.rejected_transactions;
-
-    } catch (error) {
-
-        console.error(error);
-
-    }
-}
-
-
-async function loadUsers() {
-
-    const body = document.getElementById("usersBody");
-
-    try {
-
-        const users = await apiRequest(
-            "/admin/users"
-        );
-
-        if (!users.length) {
-
-            body.innerHTML = `
-                <tr>
-                    <td colspan="7" class="empty">
-                        No users found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        body.innerHTML = users.map(user => {
-
-            const statusClass =
-                user.is_active ? "active" : "inactive";
-
-            const statusText =
-                user.is_active ? "Active" : "Disabled";
-
-            const verification =
-                user.is_verified
-                    ? "Verified"
-                    : "Unverified";
-
-            const toggleAction =
-                user.is_active
-                    ? `disableUser(${user.id})`
-                    : `enableUser(${user.id})`;
-
-            const toggleText =
-                user.is_active
-                    ? "Disable"
-                    : "Enable";
-
-            const toggleClass =
-                user.is_active
-                    ? "disable-btn"
-                    : "enable-btn";
-
-            return `
-                <tr>
-
-                    <td>#${user.id}</td>
-
-                    <td>
-                        <strong>${escapeHtml(user.username)}</strong>
-                        ${user.is_admin
-                            ? '<br><small>Administrator</small>'
-                            : ''
-                        }
-                    </td>
-
-                    <td>${escapeHtml(user.email)}</td>
-
-                    <td>
-                        $${Number(user.balance).toLocaleString(
-                            undefined,
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }
-                        )}
-                    </td>
-
-                    <td>
-                        <span class="status ${statusClass}">
-                            ${statusText}
-                        </span>
-                    </td>
-
-                    <td>
-                        ${verification}
-                    </td>
-
-                    <td>
-
-                        <button
-                            class="admin-btn balance-btn"
-                            onclick="openBalanceModal(${user.id}, '${escapeAttribute(user.username)}', '${escapeAttribute(user.balance)}')"
-                        >
-                            Balance
-                        </button>
-
-                        <button
-                            class="admin-btn ${toggleClass}"
-                            onclick="${toggleAction}"
-                        >
-                            ${toggleText}
-                        </button>
-
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-
-    } catch (error) {
-
-        body.innerHTML = `
-            <tr>
-                <td colspan="7" class="empty">
-                    ${escapeHtml(error.message)}
-                </td>
-            </tr>
-        `;
-
-    }
-}
-
-
-async function loadTransactions() {
-
-    const body = document.getElementById(
-        "transactionsBody"
-    );
-
-    try {
-
-        const transactions = await apiRequest(
-            "/admin/transactions"
-        );
-
-        if (!transactions.length) {
-
-            body.innerHTML = `
-                <tr>
-                    <td colspan="8" class="empty">
-                        No transactions found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-        }
-
-        body.innerHTML = transactions.map(tx => {
-
-            const statusClass =
-                String(tx.status).toLowerCase();
-
-            let action = "";
-
-            if (tx.status === "Pending") {
-
-                action = `
-                    <button
-                        class="admin-btn approve-btn"
-                        onclick="openReviewModal(
-                            ${tx.id},
-                            'approve'
-                        )"
-                    >
-                        Approve
-                    </button>
-
-                    <button
-                        class="admin-btn reject-btn"
-                        onclick="openReviewModal(
-                            ${tx.id},
-                            'reject'
-                        )"
-                    >
-                        Reject
-                    </button>
-                `;
-
-            } else {
-
-                action = `
-                    <span style="color:#64748b;">
-                        Reviewed
-                    </span>
-                `;
-
-            }
-
-            return `
-                <tr>
-
-                    <td>#${tx.id}</td>
-
-                    <td>
-                        ${escapeHtml(tx.username)}
-                        <br>
-                        <small style="color:#64748b;">
-                            ${escapeHtml(tx.email)}
-                        </small>
-                    </td>
-
-                    <td>${escapeHtml(tx.type)}</td>
-
-                    <td>
-                        $${Number(tx.amount).toLocaleString(
-                            undefined,
-                            {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 2
-                            }
-                        )}
-                    </td>
-
-                    <td>${escapeHtml(tx.currency)}</td>
-
-                    <td>
-                        ${
-                            tx.txid
-                                ? escapeHtml(tx.txid)
-                                : "—"
-                        }
-                    </td>
-
-                    <td>
-                        <span class="status ${statusClass}">
-                            ${escapeHtml(tx.status)}
-                        </span>
-                    </td>
-
-                    <td>
-                        ${action}
-                    </td>
-
-                </tr>
-            `;
-
-        }).join("");
-
-    } catch (error) {
-
-        body.innerHTML = `
-            <tr>
-                <td colspan="8" class="empty">
-                    ${escapeHtml(error.message)}
-                </td>
-            </tr>
-        `;
-
-    }
-}
-
-
-function openBalanceModal(
-    userId,
-    username,
-    balance
-) {
-
-    selectedUserId = userId;
-
-    document.getElementById(
-        "balanceUserDetails"
-    ).innerHTML = `
-        <strong>${escapeHtml(username)}</strong>
-        <br>
-        Current balance:
-        $${Number(balance).toLocaleString(
-            undefined,
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-            }
-        )}
-    `;
-
-    document.getElementById(
-        "balanceDirection"
-    ).value = "add";
-
-    document.getElementById(
-        "balanceAmount"
-    ).value = "";
-
-    document.getElementById(
-        "balanceReason"
-    ).value = "";
-
-    document.getElementById(
-        "balanceModal"
-    ).classList.add("show");
-}
-
-
-async function submitBalanceAdjustment() {
-
-    if (!selectedUserId) {
-        return;
-    }
-
-    const direction =
-        document.getElementById(
-            "balanceDirection"
-        ).value;
-
-    const amount =
-        document.getElementById(
-            "balanceAmount"
-        ).value;
-
-    const reason =
-        document.getElementById(
-            "balanceReason"
-        ).value.trim();
-
-    if (!amount || Number(amount) <= 0) {
-
-        showNotice(
-            "Enter a valid amount.",
-            "error"
-        );
-
-        return;
-    }
-
-    if (!reason) {
-
-        showNotice(
-            "A reason is required.",
-            "error"
-        );
-
-        return;
-    }
-
-    try {
-
-        const data = await apiRequest(
-            `/admin/users/${selectedUserId}/balance`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-                body: JSON.stringify({
-                    direction: direction,
-                    amount: amount,
-                    reason: reason
-                })
-            }
-        );
-
-        closeModal("balanceModal");
-
-        showNotice(
-            data.message || "Balance updated.",
-            "success"
-        );
-
-        loadAll();
-
-    } catch (error) {
-
-        showNotice(
-            error.message,
-            "error"
-        );
-
-    }
-}
-
-
-async function changeUserStatus(
-    userId,
-    active
-) {
-
-    try {
-
-        const data = await apiRequest(
-            `/admin/users/${userId}/status`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-                body: JSON.stringify({
-                    active: active
-                })
-            }
-        );
-
-        showNotice(
-            data.message || "User status updated.",
-            "success"
-        );
-
-        loadAll();
-
-    } catch (error) {
-
-        showNotice(
-            error.message,
-            "error"
-        );
-
-    }
-}
-
-
-function disableUser(userId) {
-
-    if (
-        confirm(
-            "Disable this user account?"
-        )
-    ) {
-        changeUserStatus(
-            userId,
-            false
-        );
-    }
-}
-
-
-function enableUser(userId) {
-
-    if (
-        confirm(
-            "Enable this user account?"
-        )
-    ) {
-        changeUserStatus(
-            userId,
-            true
-        );
-    }
-}
-
-
-function openReviewModal(
-    transactionId,
-    action
-) {
-
-    selectedTransactionId = transactionId;
-    selectedTransactionAction = action;
-
-    document.getElementById(
-        "transactionNote"
-    ).value = "";
-
-    document.getElementById(
-        "transactionDetails"
-    ).textContent =
-        action === "approve"
-            ? "You are about to approve this transaction. The user's balance will be updated."
-            : "You are about to reject this transaction. No balance will be added or removed.";
-
-    const button =
-        document.getElementById(
-            "reviewConfirmButton"
-        );
-
-    button.textContent =
-        action === "approve"
-            ? "Approve Transaction"
-            : "Reject Transaction";
-
-    button.style.background =
-        action === "approve"
-            ? "#22c55e"
-            : "#ef4444";
-
-    button.style.color = "white";
-
-    button.onclick =
-        submitTransactionReview;
-
-    document.getElementById(
-        "transactionModal"
-    ).classList.add("show");
-}
-
-
-async function submitTransactionReview() {
-
-    if (!selectedTransactionId) {
-        return;
-    }
-
-    const note =
-        document.getElementById(
-            "transactionNote"
-        ).value.trim();
-
-    try {
-
-        const data = await apiRequest(
-            `/admin/transactions/${selectedTransactionId}/review`,
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type":
-                        "application/json"
-                },
-                body: JSON.stringify({
-                    action:
-                        selectedTransactionAction,
-                    note: note
-                })
-            }
-        );
-
-        closeModal(
-            "transactionModal"
-        );
-
-        showNotice(
-            data.message || "Transaction reviewed.",
-            "success"
-        );
-
-        loadAll();
-
-    } catch (error) {
-
-        showNotice(
-            error.message,
-            "error"
-        );
-
-    }
-}
-
-
-function closeModal(id) {
-
-    document.getElementById(
-        id
-    ).classList.remove("show");
-}
-
-
-async function loadAll() {
-
-    await Promise.all([
-        loadOverview(),
-        loadUsers(),
-        loadTransactions()
-    ]);
-}
-
-
-async function logout() {
-
-    try {
-
-        await fetch(
-            "/logout",
-            {
-                method: "POST"
-            }
-        );
-
-    } finally {
-
-        window.location.href =
-            "/admin-page";
-    }
 }
 
 
 function escapeHtml(value) {
 
     return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
 }
 
 
-function escapeAttribute(value) {
-    return escapeHtml(value)
-        .replaceAll("`", "&#096;");
+function formatMoney(value) {
+
+    return new Intl.NumberFormat(
+        "en-US",
+        {
+            style: "currency",
+            currency: "USD"
+        }
+    ).format(Number(value || 0));
+
 }
 
 
-loadAll();
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const date =
+        new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "—";
+    }
+
+    return date.toLocaleString();
+
+}
+
+
+/* ================================
+   LOAD OVERVIEW
+   ================================ */
+
+async function loadOverview() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/admin/overview",
+                {
+                    credentials:
+                        "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Unable to load overview."
+            );
+
+        }
+
+
+        document.getElementById(
+            "totalUsers"
+        ).textContent =
+            data.users;
+
+
+        document.getElementById(
+            "activeUsers"
+        ).textContent =
+            data.active_users;
+
+
+        document.getElementById(
+            "pendingTransactions"
+        ).textContent =
+            data.pending_transactions;
+
+
+        document.getElementById(
+            "approvedTransactions"
+        ).textContent =
+            data.approved_transactions;
+
+
+        document.getElementById(
+            "rejectedTransactions"
+        ).textContent =
+            data.rejected_transactions;
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* ================================
+   LOAD TRANSACTIONS
+   ================================ */
+
+async function loadTransactions() {
+
+    const table =
+        document.getElementById(
+            "transactionTable"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/admin/transactions",
+                {
+                    credentials:
+                        "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Unable to load transactions."
+            );
+
+        }
+
+
+        if (!data.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td
+                        colspan="7"
+                        style="text-align:center;"
+                    >
+                        No transactions found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML =
+            data.map(
+                function(transaction) {
+
+                    const pending =
+                        transaction.status ===
+                        "Pending";
+
+
+                    return `
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    transaction.username
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    transaction.type
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    transaction.amount
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    transaction.currency
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    transaction.status
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    formatDate(
+                                        transaction.created_at
+                                    )
+                                )}
+                            </td>
+
+                            <td>
+
+                                ${
+                                    pending
+                                    ? `
+                                        <button
+                                            class="btn btn-primary"
+                                            onclick="reviewTransaction(
+                                                ${transaction.id},
+                                                'approve'
+                                            )"
+                                        >
+                                            Approve
+                                        </button>
+
+                                        <button
+                                            class="btn btn-secondary"
+                                            onclick="reviewTransaction(
+                                                ${transaction.id},
+                                                'reject'
+                                            )"
+                                        >
+                                            Reject
+                                        </button>
+                                    `
+                                    : `
+                                        <span>
+                                            Reviewed
+                                        </span>
+                                    `
+                                }
+
+                            </td>
+
+                        </tr>
+                    `;
+
+                }
+            ).join("");
+
+
+    } catch (error) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="7"
+                    style="text-align:center;"
+                >
+                    Unable to load transactions.
+                </td>
+            </tr>
+        `;
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* ================================
+   REVIEW TRANSACTION
+   ================================ */
+
+async function reviewTransaction(
+    transactionId,
+    action
+) {
+
+    let note =
+        "";
+
+
+    if (action === "reject") {
+
+        note =
+            window.prompt(
+                "Enter a reason for rejecting this transaction:"
+            );
+
+
+        if (note === null) {
+            return;
+        }
+
+    }
+
+
+    if (action === "approve") {
+
+        const confirmed =
+            window.confirm(
+                "Approve this transaction?"
+            );
+
+        if (!confirmed) {
+            return;
+        }
+
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/admin/transactions/${transactionId}/review`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials:
+                        "same-origin",
+
+                    body: JSON.stringify({
+
+                        action:
+                            action,
+
+                        note:
+                            note
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Unable to review transaction."
+            );
+
+        }
+
+
+        showMessage(
+            data.message,
+            true
+        );
+
+
+        await loadOverview();
+
+        await loadTransactions();
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* ================================
+   LOAD USERS
+   ================================ */
+
+async function loadUsers() {
+
+    const table =
+        document.getElementById(
+            "userTable"
+        );
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/admin/users",
+                {
+                    credentials:
+                        "same-origin"
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Unable to load users."
+            );
+
+        }
+
+
+        if (!data.length) {
+
+            table.innerHTML = `
+                <tr>
+                    <td
+                        colspan="6"
+                        style="text-align:center;"
+                    >
+                        No users found.
+                    </td>
+                </tr>
+            `;
+
+            return;
+
+        }
+
+
+        table.innerHTML =
+            data.map(
+                function(user) {
+
+                    return `
+                        <tr>
+
+                            <td>
+                                ${escapeHtml(
+                                    user.username
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    user.email
+                                )}
+                            </td>
+
+                            <td>
+                                ${escapeHtml(
+                                    formatMoney(
+                                        user.balance
+                                    )
+                                )}
+                            </td>
+
+                            <td>
+                                ${
+                                    user.is_verified
+                                        ? "Verified"
+                                        : "Not verified"
+                                }
+                            </td>
+
+                            <td>
+                                ${
+                                    user.is_active
+                                        ? "Active"
+                                        : "Disabled"
+                                }
+                            </td>
+
+                            <td>
+
+                                <button
+                                    class="btn btn-secondary"
+                                    onclick="toggleUserStatus(
+                                        ${user.id},
+                                        ${user.is_active}
+                                    )"
+                                >
+                                    ${
+                                        user.is_active
+                                            ? "Disable"
+                                            : "Activate"
+                                    }
+                                </button>
+
+                            </td>
+
+                        </tr>
+                    `;
+
+                }
+            ).join("");
+
+
+    } catch (error) {
+
+        table.innerHTML = `
+            <tr>
+                <td
+                    colspan="6"
+                    style="text-align:center;"
+                >
+                    Unable to load users.
+                </td>
+            </tr>
+        `;
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* ================================
+   USER STATUS
+   ================================ */
+
+async function toggleUserStatus(
+    userId,
+    currentStatus
+) {
+
+    const newStatus =
+        !currentStatus;
+
+
+    const confirmed =
+        window.confirm(
+            newStatus
+                ? "Activate this user?"
+                : "Disable this user?"
+        );
+
+
+    if (!confirmed) {
+        return;
+    }
+
+
+    try {
+
+        const response =
+            await fetch(
+                `/admin/users/${userId}/status`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials:
+                        "same-origin",
+
+                    body: JSON.stringify({
+                        active:
+                            newStatus
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Unable to update user status."
+            );
+
+        }
+
+
+        showMessage(
+            data.message,
+            true
+        );
+
+
+        await loadOverview();
+
+        await loadUsers();
+
+
+    } catch (error) {
+
+        showMessage(
+            error.message
+        );
+
+    }
+
+}
+
+
+/* ================================
+   BALANCE ADJUSTMENT
+   ================================ */
+
+document.getElementById(
+    "balanceForm"
+).addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const userId =
+            document.getElementById(
+                "balanceUser"
+            ).value;
+
+
+        const amount =
+            document.getElementById(
+                "balanceAmount"
+            ).value;
+
+
+        const direction =
+            document.getElementById(
+                "balanceDirection"
+            ).value;
+
+
+        const reason =
+            document.getElementById(
+                "balanceReason"
+            ).value.trim();
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/admin/users/${userId}/balance`,
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        credentials:
+                            "same-origin",
+
+                        body: JSON.stringify({
+
+                            amount:
+                                amount,
+
+                            direction:
+                                direction,
+
+                            reason:
+                                reason
+
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Unable to update balance."
+                );
+
+            }
+
+
+            showMessage(
+                `Balance updated. New balance: ${data.new_balance}`,
+                true
+            );
+
+
+            this.reset();
+
+
+            await loadOverview();
+
+            await loadUsers();
+
+
+        } catch (error) {
+
+            showMessage(
+                error.message
+            );
+
+        }
+
+    }
+);
+
+
+/* ================================
+   REFRESH BUTTONS
+   ================================ */
+
+document.getElementById(
+    "refreshTransactions"
+).addEventListener(
+    "click",
+    async function() {
+
+        await loadOverview();
+
+        await loadTransactions();
+
+    }
+);
+
+
+document.getElementById(
+    "refreshUsers"
+).addEventListener(
+    "click",
+    async function() {
+
+        await loadOverview();
+
+        await loadUsers();
+
+    }
+);
+
+
+/* ================================
+   LOGOUT
+   ================================ */
+
+document.getElementById(
+    "logoutButton"
+).addEventListener(
+    "click",
+    async function() {
+
+        try {
+
+            await fetch(
+                "/logout",
+                {
+                    method: "POST",
+                    credentials:
+                        "same-origin"
+                }
+            );
+
+        } finally {
+
+            window.location.href =
+                "/admin-page";
+
+        }
+
+    }
+);
+
+
+/* ================================
+   INITIAL LOAD
+   ================================ */
+
+loadOverview();
+
+loadTransactions();
+
+loadUsers();
 
 </script>
 
