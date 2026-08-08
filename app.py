@@ -45,10 +45,13 @@ if database_url.startswith("postgres://"):
         1
     )
 
+
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 app.config["SESSION_COOKIE_HTTPONLY"] = True
+
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 app.config["SESSION_COOKIE_SECURE"] = (
@@ -63,8 +66,9 @@ db = SQLAlchemy(app)
 
 
 # ============================================================
-# DATABASE MODELS
+# MODELS
 # ============================================================
+
 
 class User(db.Model):
 
@@ -249,6 +253,7 @@ class BalanceAdjustment(db.Model):
 # HELPERS
 # ============================================================
 
+
 def money(value):
 
     try:
@@ -277,7 +282,9 @@ def money(value):
 
 def current_user():
 
-    user_id = session.get("user_id")
+    user_id = session.get(
+        "user_id"
+    )
 
     if not user_id:
         return None
@@ -295,10 +302,14 @@ def login_required(fn):
 
         user = current_user()
 
-        if not user or not user.is_active:
+        if (
+            not user
+            or not user.is_active
+        ):
 
             return jsonify({
-                "error": "Authentication required."
+                "error":
+                    "Authentication required."
             }), 401
 
         return fn(*args, **kwargs)
@@ -320,7 +331,8 @@ def admin_required(fn):
         ):
 
             return jsonify({
-                "error": "Administrator access required."
+                "error":
+                    "Administrator access required."
             }), 403
 
         return fn(*args, **kwargs)
@@ -360,7 +372,7 @@ def send_otp_email(
     if not sender or not password:
 
         app.logger.warning(
-            "MAIL_USERNAME or MAIL_PASSWORD is not configured."
+            "MAIL_USERNAME/MAIL_PASSWORD are not configured."
         )
 
         return False
@@ -370,16 +382,8 @@ def send_otp_email(
     from email.mime.text import MIMEText
 
     message = MIMEText(
-        f"""
-Your NexaBrokers verification code is:
-
-{code}
-
-This code expires in 10 minutes.
-
-If you did not request this code,
-you can ignore this email.
-""",
+        f"Your NexaBrokers verification code is {code}. "
+        "It expires in 10 minutes.",
         "plain"
     )
 
@@ -388,6 +392,7 @@ you can ignore this email.
     )
 
     message["From"] = sender
+
     message["To"] = to_email
 
     try:
@@ -433,8 +438,9 @@ def json_user(user):
 
 
 # ============================================================
-# FRONTEND PAGES
+# PUBLIC PAGES
 # ============================================================
+
 
 @app.route("/")
 def home():
@@ -472,6 +478,13 @@ def verify_page():
 @login_required
 def dashboard_page():
 
+    user = current_user()
+
+    if user.is_admin:
+        return redirect(
+            url_for("admin_page")
+        )
+
     return render_template(
         "dashboard.html"
     )
@@ -485,18 +498,10 @@ def admin_page():
     )
 
 
-@app.route("/admin-dashboard")
-@admin_required
-def admin_dashboard():
-
-    return render_template(
-        "admin.html"
-    )
-
-
 # ============================================================
-# SIGNUP
+# AUTHENTICATION
 # ============================================================
+
 
 @app.route(
     "/signup",
@@ -515,50 +520,58 @@ def signup():
     )
 
     username = (
-        data.get("username") or ""
+        data.get("username")
+        or ""
     ).strip()
 
     email = (
-        data.get("email") or ""
+        data.get("email")
+        or ""
     ).strip().lower()
 
     password = (
-        data.get("password") or ""
+        data.get("password")
+        or ""
     )
+
 
     if len(username) < 3:
 
         return jsonify({
             "error":
-            "Username must contain at least 3 characters."
+                "Username must contain at least 3 characters."
         }), 400
+
 
     if len(password) < 8:
 
         return jsonify({
             "error":
-            "Password must contain at least 8 characters."
+                "Password must contain at least 8 characters."
         }), 400
+
 
     if not email:
 
         return jsonify({
             "error":
-            "Email is required."
+                "Email is required."
         }), 400
 
-    existing = User.query.filter(
+
+    existing_user = User.query.filter(
         (User.email == email)
-        |
-        (User.username == username)
+        | (User.username == username)
     ).first()
 
-    if existing:
+
+    if existing_user:
 
         return jsonify({
             "error":
-            "Email or username already exists."
+                "Email or username already exists."
         }), 409
+
 
     user = User(
         username=username,
@@ -569,43 +582,42 @@ def signup():
         is_verified=False
     )
 
-    code = issue_otp(user)
 
-    db.session.add(user)
+    code = issue_otp(
+        user
+    )
+
+
+    db.session.add(
+        user
+    )
+
     db.session.commit()
+
 
     sent = send_otp_email(
         email,
         code
     )
 
+
     response = {
         "message":
-        "Account created. Verification code sent."
+            "Account created. Verification code generated."
     }
 
-    # Only expose development code
-    # when explicitly enabled.
-    if (
-        not sent
-        and os.environ.get(
-            "SHOW_DEV_OTP",
-            "false"
-        ).lower() == "true"
-    ):
+
+    if not sent and app.debug:
 
         response[
             "development_code"
         ] = code
 
+
     return jsonify(
         response
     ), 201
 
-
-# ============================================================
-# LOGIN REQUEST
-# ============================================================
 
 @app.route(
     "/login-request",
@@ -623,17 +635,23 @@ def login_request():
         )
     )
 
+
     email = (
-        data.get("email") or ""
+        data.get("email")
+        or ""
     ).strip().lower()
 
+
     password = (
-        data.get("password") or ""
+        data.get("password")
+        or ""
     )
+
 
     user = User.query.filter_by(
         email=email
     ).first()
+
 
     if (
         not user
@@ -646,50 +664,49 @@ def login_request():
 
         return jsonify({
             "error":
-            "Invalid email or password."
+                "Invalid email or password."
         }), 401
+
 
     if not user.is_active:
 
         return jsonify({
             "error":
-            "Account is disabled."
+                "Account is disabled."
         }), 403
 
-    code = issue_otp(user)
+
+    code = issue_otp(
+        user
+    )
+
 
     db.session.commit()
+
 
     sent = send_otp_email(
         user.email,
         code
     )
 
+
     response = {
         "message":
-        "Verification code sent."
+            "Verification code sent."
     }
 
-    if (
-        not sent
-        and os.environ.get(
-            "SHOW_DEV_OTP",
-            "false"
-        ).lower() == "true"
-    ):
+
+    if not sent and app.debug:
 
         response[
             "development_code"
         ] = code
 
+
     return jsonify(
         response
     )
 
-
-# ============================================================
-# VERIFY CODE
-# ============================================================
 
 @app.route(
     "/verify-code",
@@ -707,17 +724,23 @@ def verify_code():
         )
     )
 
+
     email = (
-        data.get("email") or ""
+        data.get("email")
+        or ""
     ).strip().lower()
 
+
     code = str(
-        data.get("code") or ""
+        data.get("code")
+        or ""
     ).strip()
+
 
     user = User.query.filter_by(
         email=email
     ).first()
+
 
     if (
         not user
@@ -726,16 +749,19 @@ def verify_code():
 
         return jsonify({
             "error":
-            "Invalid verification code."
+                "Invalid verification code."
         }), 400
+
 
     now = datetime.now(
         timezone.utc
     )
 
+
     expires = (
         user.verification_expires_at
     )
+
 
     if (
         not expires
@@ -748,32 +774,34 @@ def verify_code():
 
         return jsonify({
             "error":
-            "Invalid or expired verification code."
+                "Invalid or expired verification code."
         }), 400
+
 
     user.is_verified = True
 
     user.verification_code_hash = None
+
     user.verification_expires_at = None
+
 
     session.clear()
 
     session["user_id"] = user.id
+
     session.permanent = True
+
 
     db.session.commit()
 
+
     return jsonify({
         "message":
-        "Login successful.",
+            "Login successful.",
         "user":
-        json_user(user)
+            json_user(user)
     })
 
-
-# ============================================================
-# LOGOUT
-# ============================================================
 
 @app.route(
     "/logout",
@@ -785,19 +813,21 @@ def logout():
 
     return jsonify({
         "message":
-        "Logged out."
+            "Logged out."
     })
 
 
 # ============================================================
-# USER DASHBOARD API
+# USER DASHBOARD
 # ============================================================
+
 
 @app.route("/dashboard")
 @login_required
 def dashboard():
 
     user = current_user()
+
 
     transactions = (
         Transaction.query
@@ -810,13 +840,14 @@ def dashboard():
         .all()
     )
 
+
     return jsonify({
 
         "message":
-        "Dashboard API",
+            "Dashboard API",
 
         "user":
-        json_user(user),
+            json_user(user),
 
         "transactions": [
 
@@ -824,12 +855,10 @@ def dashboard():
                 "id": t.id,
                 "type": t.type,
                 "amount": str(t.amount),
-                "currency":
-                    t.crypto_currency,
+                "currency": t.crypto_currency,
                 "txid": t.txid,
                 "status": t.status,
-                "admin_note":
-                    t.admin_note,
+                "admin_note": t.admin_note,
                 "created_at":
                     (
                         t.created_at.isoformat()
@@ -839,14 +868,16 @@ def dashboard():
             }
 
             for t in transactions
+
         ]
 
     })
 
 
 # ============================================================
-# WALLET REQUEST
+# WALLET REQUESTS
 # ============================================================
+
 
 @app.route(
     "/wallet/request",
@@ -865,19 +896,26 @@ def wallet_request():
         )
     )
 
+
     tx_type = str(
-        data.get("type") or ""
+        data.get("type")
+        or ""
     ).strip().title()
+
 
     currency = str(
         data.get(
             "crypto_currency"
-        ) or "USDT"
+        )
+        or "USDT"
     ).strip().upper()
 
+
     txid = str(
-        data.get("txid") or ""
+        data.get("txid")
+        or ""
     ).strip()[:255]
+
 
     try:
 
@@ -888,8 +926,10 @@ def wallet_request():
     except ValueError as exc:
 
         return jsonify({
-            "error": str(exc)
+            "error":
+                str(exc)
         }), 400
+
 
     if tx_type not in {
         "Deposit",
@@ -898,8 +938,9 @@ def wallet_request():
 
         return jsonify({
             "error":
-            "Type must be Deposit or Withdrawal."
+                "Type must be Deposit or Withdrawal."
         }), 400
+
 
     if currency not in {
         "USDT",
@@ -910,10 +951,12 @@ def wallet_request():
 
         return jsonify({
             "error":
-            "Unsupported currency."
+                "Unsupported currency."
         }), 400
 
+
     user = current_user()
+
 
     if (
         tx_type == "Withdrawal"
@@ -922,8 +965,9 @@ def wallet_request():
 
         return jsonify({
             "error":
-            "Insufficient available balance."
+                "Insufficient available balance."
         }), 400
+
 
     tx = Transaction(
 
@@ -941,26 +985,32 @@ def wallet_request():
 
     )
 
-    db.session.add(tx)
+
+    db.session.add(
+        tx
+    )
+
     db.session.commit()
+
 
     return jsonify({
 
         "message":
-        f"{tx_type} request submitted.",
+            f"{tx_type} request submitted.",
 
         "transaction_id":
-        tx.id,
+            tx.id,
 
         "status":
-        tx.status
+            tx.status
 
     }), 201
 
 
 # ============================================================
-# ADMIN LOGIN
+# ADMIN AUTHENTICATION
 # ============================================================
+
 
 @app.route(
     "/admin/login",
@@ -978,18 +1028,24 @@ def admin_login():
         )
     )
 
+
     username = (
-        data.get("username") or ""
+        data.get("username")
+        or ""
     ).strip()
 
+
     password = (
-        data.get("password") or ""
+        data.get("password")
+        or ""
     )
+
 
     admin = User.query.filter_by(
         username=username,
         is_admin=True
     ).first()
+
 
     if (
         not admin
@@ -999,8 +1055,9 @@ def admin_login():
 
         return jsonify({
             "error":
-            "Invalid admin credentials."
+                "Invalid admin credentials."
         }), 401
+
 
     if not check_password_hash(
         admin.password_hash,
@@ -1009,21 +1066,24 @@ def admin_login():
 
         return jsonify({
             "error":
-            "Invalid admin credentials."
+                "Invalid admin credentials."
         }), 401
+
 
     session.clear()
 
     session["user_id"] = admin.id
+
     session.permanent = True
+
 
     return jsonify({
 
         "message":
-        "Admin login successful.",
+            "Admin login successful.",
 
         "user":
-        json_user(admin)
+            json_user(admin)
 
     })
 
@@ -1032,6 +1092,7 @@ def admin_login():
 # ADMIN OVERVIEW
 # ============================================================
 
+
 @app.route("/admin/overview")
 @admin_required
 def admin_overview():
@@ -1039,27 +1100,27 @@ def admin_overview():
     return jsonify({
 
         "users":
-        User.query.count(),
+            User.query.count(),
 
         "active_users":
-        User.query.filter_by(
-            is_active=True
-        ).count(),
+            User.query.filter_by(
+                is_active=True
+            ).count(),
 
         "pending_transactions":
-        Transaction.query.filter_by(
-            status="Pending"
-        ).count(),
+            Transaction.query.filter_by(
+                status="Pending"
+            ).count(),
 
         "approved_transactions":
-        Transaction.query.filter_by(
-            status="Approved"
-        ).count(),
+            Transaction.query.filter_by(
+                status="Approved"
+            ).count(),
 
         "rejected_transactions":
-        Transaction.query.filter_by(
-            status="Rejected"
-        ).count(),
+            Transaction.query.filter_by(
+                status="Rejected"
+            ).count(),
 
     })
 
@@ -1067,6 +1128,7 @@ def admin_overview():
 # ============================================================
 # ADMIN USERS
 # ============================================================
+
 
 @app.route("/admin/users")
 @admin_required
@@ -1080,17 +1142,18 @@ def admin_users():
         .all()
     )
 
+
     return jsonify([
 
         {
             **json_user(user),
 
             "created_at":
-            (
-                user.created_at.isoformat()
-                if user.created_at
-                else None
-            ),
+                (
+                    user.created_at.isoformat()
+                    if user.created_at
+                    else None
+                ),
         }
 
         for user in users
@@ -1112,12 +1175,14 @@ def admin_user_detail(
         user_id
     )
 
+
     if not user:
 
         return jsonify({
             "error":
-            "User not found."
+                "User not found."
         }), 404
+
 
     transactions = (
         Transaction.query
@@ -1130,10 +1195,11 @@ def admin_user_detail(
         .all()
     )
 
+
     return jsonify({
 
         "user":
-        json_user(user),
+            json_user(user),
 
         "transactions": [
 
@@ -1141,12 +1207,10 @@ def admin_user_detail(
                 "id": t.id,
                 "type": t.type,
                 "amount": str(t.amount),
-                "currency":
-                    t.crypto_currency,
+                "currency": t.crypto_currency,
                 "txid": t.txid,
                 "status": t.status,
-                "admin_note":
-                    t.admin_note,
+                "admin_note": t.admin_note,
                 "created_at":
                     (
                         t.created_at.isoformat()
@@ -1161,10 +1225,6 @@ def admin_user_detail(
 
     })
 
-
-# ============================================================
-# ADMIN USER STATUS
-# ============================================================
 
 @app.route(
     "/admin/users/<int:user_id>/status",
@@ -1182,21 +1242,25 @@ def admin_user_status(
         or request.form
     )
 
+
     user = db.session.get(
         User,
         user_id
     )
 
+
     if not user:
 
         return jsonify({
             "error":
-            "User not found."
+                "User not found."
         }), 404
+
 
     active = data.get(
         "active"
     )
+
 
     if str(active).lower() not in {
         "true",
@@ -1207,23 +1271,29 @@ def admin_user_status(
 
         return jsonify({
             "error":
-            "active must be true or false."
+                "active must be true or false."
         }), 400
+
 
     user.is_active = (
         str(active).lower()
-        in {"true", "1"}
+        in {
+            "true",
+            "1"
+        }
     )
 
+
     db.session.commit()
+
 
     return jsonify({
 
         "message":
-        "User status updated.",
+            "User status updated.",
 
         "user":
-        json_user(user)
+            json_user(user)
 
     })
 
@@ -1231,6 +1301,7 @@ def admin_user_status(
 # ============================================================
 # ADMIN BALANCE ADJUSTMENT
 # ============================================================
+
 
 @app.route(
     "/admin/users/<int:user_id>/balance",
@@ -1248,27 +1319,35 @@ def admin_balance_adjustment(
         or request.form
     )
 
+
     user = db.session.get(
         User,
         user_id
     )
 
+
     admin = current_user()
+
 
     if not user:
 
         return jsonify({
             "error":
-            "User not found."
+                "User not found."
         }), 404
 
+
     direction = str(
-        data.get("direction") or ""
+        data.get("direction")
+        or ""
     ).lower()
 
+
     reason = str(
-        data.get("reason") or ""
+        data.get("reason")
+        or ""
     ).strip()
+
 
     if direction not in {
         "add",
@@ -1277,15 +1356,17 @@ def admin_balance_adjustment(
 
         return jsonify({
             "error":
-            "direction must be add or remove."
+                "direction must be add or remove."
         }), 400
+
 
     if not reason:
 
         return jsonify({
             "error":
-            "A reason is required."
+                "A reason is required."
         }), 400
+
 
     try:
 
@@ -1296,12 +1377,15 @@ def admin_balance_adjustment(
     except ValueError as exc:
 
         return jsonify({
-            "error": str(exc)
+            "error":
+                str(exc)
         }), 400
+
 
     old_balance = Decimal(
         str(user.balance)
     )
+
 
     if (
         direction == "remove"
@@ -1310,8 +1394,9 @@ def admin_balance_adjustment(
 
         return jsonify({
             "error":
-            "Cannot remove more than the user's balance."
+                "Cannot remove more than the user's balance."
         }), 400
+
 
     if direction == "add":
 
@@ -1325,7 +1410,9 @@ def admin_balance_adjustment(
             old_balance - amount
         )
 
+
     user.balance = new_balance
+
 
     adjustment = BalanceAdjustment(
 
@@ -1341,20 +1428,24 @@ def admin_balance_adjustment(
 
     )
 
-    db.session.add(adjustment)
+
+    db.session.add(
+        adjustment
+    )
 
     db.session.commit()
+
 
     return jsonify({
 
         "message":
-        "Balance updated.",
+            "Balance updated.",
 
         "old_balance":
-        str(old_balance),
+            str(old_balance),
 
         "new_balance":
-        str(new_balance)
+            str(new_balance)
 
     })
 
@@ -1362,6 +1453,7 @@ def admin_balance_adjustment(
 # ============================================================
 # ADMIN TRANSACTIONS
 # ============================================================
+
 
 @app.route("/admin/transactions")
 @admin_required
@@ -1375,6 +1467,7 @@ def admin_transactions():
         .all()
     )
 
+
     return jsonify([
 
         {
@@ -1384,12 +1477,10 @@ def admin_transactions():
             "email": t.user.email,
             "type": t.type,
             "amount": str(t.amount),
-            "currency":
-                t.crypto_currency,
+            "currency": t.crypto_currency,
             "txid": t.txid,
             "status": t.status,
-            "admin_note":
-                t.admin_note,
+            "admin_note": t.admin_note,
             "created_at":
                 (
                     t.created_at.isoformat()
@@ -1402,10 +1493,6 @@ def admin_transactions():
 
     ])
 
-
-# ============================================================
-# REVIEW TRANSACTION
-# ============================================================
 
 @app.route(
     "/admin/transactions/<int:tx_id>/review",
@@ -1423,13 +1510,18 @@ def review_transaction(
         or request.form
     )
 
+
     action = str(
-        data.get("action") or ""
+        data.get("action")
+        or ""
     ).lower()
 
+
     note = str(
-        data.get("note") or ""
+        data.get("note")
+        or ""
     ).strip()[:500]
+
 
     if action not in {
         "approve",
@@ -1438,34 +1530,40 @@ def review_transaction(
 
         return jsonify({
             "error":
-            "action must be approve or reject."
+                "action must be approve or reject."
         }), 400
+
 
     tx = db.session.get(
         Transaction,
         tx_id
     )
 
+
     if not tx:
 
         return jsonify({
             "error":
-            "Transaction not found."
+                "Transaction not found."
         }), 404
+
 
     if tx.status != "Pending":
 
         return jsonify({
             "error":
-            "Only pending transactions can be reviewed."
+                "Only pending transactions can be reviewed."
         }), 409
+
 
     user = db.session.get(
         User,
         tx.user_id
     )
 
+
     admin = current_user()
+
 
     if action == "approve":
 
@@ -1475,11 +1573,11 @@ def review_transaction(
                 Decimal(
                     str(user.balance)
                 )
-                +
-                Decimal(
+                + Decimal(
                     str(tx.amount)
                 )
             )
+
 
         elif tx.type == "Withdrawal":
 
@@ -1491,64 +1589,73 @@ def review_transaction(
                 str(tx.amount)
             )
 
+
             if amount > current_balance:
 
                 return jsonify({
                     "error":
-                    "Cannot approve withdrawal: insufficient balance."
+                        "Cannot approve withdrawal: insufficient balance."
                 }), 400
+
 
             user.balance = (
                 current_balance
                 - amount
             )
 
+
         tx.status = "Approved"
+
 
     else:
 
         tx.status = "Rejected"
 
+
     tx.admin_note = (
-        note
-        or None
+        note or None
     )
 
     tx.reviewed_by = admin.id
 
     tx.reviewed_at = (
-        datetime.now(timezone.utc)
+        datetime.now(
+            timezone.utc
+        )
     )
 
+
     db.session.commit()
+
 
     return jsonify({
 
         "message":
-        f"Transaction {tx.status.lower()}.",
+            f"Transaction {tx.status.lower()}.",
 
         "transaction_id":
-        tx.id,
+            tx.id,
 
         "status":
-        tx.status,
+            tx.status,
 
         "user_balance":
-        str(user.balance)
+            str(user.balance)
 
     })
 
 
 # ============================================================
-# HEALTH CHECK
+# HEALTH
 # ============================================================
+
 
 @app.route("/health")
 def health():
 
     return jsonify({
         "status":
-        "ok"
+            "ok"
     })
 
 
@@ -1556,14 +1663,16 @@ def health():
 # DATABASE INITIALIZATION
 # ============================================================
 
+
 with app.app_context():
 
     db.create_all()
 
 
 # ============================================================
-# RUN
+# LOCAL SERVER
 # ============================================================
+
 
 if __name__ == "__main__":
 
