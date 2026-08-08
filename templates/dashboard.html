@@ -1,541 +1,549 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard | NexaBrokers{% endblock %}
+{% block title %}
+Dashboard — NexaBrokers
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .dashboard {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 35px 20px 60px;
-    }
+<section class="dashboard">
 
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
-    }
+    <div class="container">
 
-    .dashboard-header h1 {
-        margin: 0;
-        font-size: 32px;
-        color: white;
-    }
+        <!-- Header -->
 
-    .dashboard-header p {
-        margin: 8px 0 0;
-        color: #94a3b8;
-    }
+        <div class="dashboard-header">
 
-    .logout-btn {
-        border: 1px solid #334155;
-        background: #111827;
-        color: #cbd5e1;
-        padding: 11px 18px;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 600;
-    }
+            <div>
+                <div class="badge">
+                    Personal Dashboard
+                </div>
 
-    .logout-btn:hover {
-        border-color: #38bdf8;
-        color: #38bdf8;
-    }
-
-    .balance-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 18px;
-        margin-bottom: 25px;
-    }
-
-    .balance-card {
-        background: linear-gradient(145deg, #111827, #0f172a);
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 20px;
-        padding: 25px;
-        min-height: 130px;
-    }
-
-    .balance-card.primary {
-        background: linear-gradient(135deg, #0ea5e9, #4f46e5);
-        border: none;
-    }
-
-    .card-label {
-        color: #94a3b8;
-        font-size: 13px;
-        margin-bottom: 15px;
-    }
-
-    .primary .card-label {
-        color: rgba(255,255,255,.75);
-    }
-
-    .balance-value {
-        font-size: 30px;
-        font-weight: 800;
-        color: white;
-    }
-
-    .section {
-        background: #111827;
-        border: 1px solid rgba(255,255,255,.08);
-        border-radius: 20px;
-        padding: 25px;
-        margin-bottom: 25px;
-    }
-
-    .section-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 15px;
-        margin-bottom: 22px;
-        flex-wrap: wrap;
-    }
-
-    .section-header h2 {
-        margin: 0;
-        color: white;
-        font-size: 20px;
-    }
-
-    .action-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 15px;
-    }
-
-    .action-card {
-        padding: 22px;
-        border-radius: 15px;
-        background: #0f172a;
-        border: 1px solid #1e293b;
-    }
-
-    .action-card h3 {
-        margin: 0 0 8px;
-        color: white;
-    }
-
-    .action-card p {
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.5;
-    }
-
-    .action-card form {
-        margin-top: 18px;
-    }
-
-    .input-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    input,
-    select {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 12px 13px;
-        border-radius: 10px;
-        border: 1px solid #334155;
-        background: #111827;
-        color: white;
-        outline: none;
-    }
-
-    input:focus,
-    select:focus {
-        border-color: #38bdf8;
-    }
-
-    .action-btn {
-        width: 100%;
-        margin-top: 10px;
-        padding: 13px;
-        border: none;
-        border-radius: 10px;
-        background: #38bdf8;
-        color: #07111c;
-        font-weight: 800;
-        cursor: pointer;
-    }
-
-    .action-btn:hover {
-        background: #0ea5e9;
-    }
-
-    .withdraw-btn {
-        background: #6366f1;
-        color: white;
-    }
-
-    .withdraw-btn:hover {
-        background: #4f46e5;
-    }
-
-    .table-wrapper {
-        overflow-x: auto;
-    }
-
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        min-width: 700px;
-    }
-
-    th {
-        text-align: left;
-        color: #64748b;
-        font-size: 12px;
-        padding: 13px;
-        border-bottom: 1px solid #1e293b;
-    }
-
-    td {
-        padding: 15px 13px;
-        color: #cbd5e1;
-        font-size: 13px;
-        border-bottom: 1px solid #1e293b;
-    }
-
-    .status {
-        display: inline-block;
-        padding: 5px 9px;
-        border-radius: 999px;
-        font-size: 11px;
-        font-weight: 700;
-    }
-
-    .pending {
-        background: rgba(234,179,8,.12);
-        color: #facc15;
-    }
-
-    .approved {
-        background: rgba(34,197,94,.12);
-        color: #4ade80;
-    }
-
-    .rejected {
-        background: rgba(239,68,68,.12);
-        color: #f87171;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 35px 10px;
-        color: #64748b;
-    }
-
-    .notice {
-        display: none;
-        padding: 13px 15px;
-        margin-bottom: 20px;
-        border-radius: 10px;
-        font-size: 14px;
-    }
-
-    .notice.success {
-        display: block;
-        background: rgba(34,197,94,.1);
-        color: #4ade80;
-        border: 1px solid rgba(34,197,94,.2);
-    }
-
-    .notice.error {
-        display: block;
-        background: rgba(239,68,68,.1);
-        color: #f87171;
-        border: 1px solid rgba(239,68,68,.2);
-    }
-
-    .account-info {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-    }
-
-    .info-item {
-        background: #0f172a;
-        border-radius: 12px;
-        padding: 15px;
-    }
-
-    .info-item span {
-        display: block;
-        color: #64748b;
-        font-size: 12px;
-        margin-bottom: 6px;
-    }
-
-    .info-item strong {
-        color: #e2e8f0;
-        font-size: 14px;
-        word-break: break-word;
-    }
-
-    @media (max-width: 800px) {
-        .balance-grid,
-        .account-info {
-            grid-template-columns: 1fr;
-        }
-
-        .action-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .dashboard-header h1 {
-            font-size: 26px;
-        }
-    }
-</style>
-
-<div class="dashboard">
-
-    <div class="dashboard-header">
-        <div>
-            <h1>Welcome back<span id="username"></span></h1>
-            <p>Manage your account and transaction requests.</p>
-        </div>
-
-        <button class="logout-btn" onclick="logout()">
-            Log out
-        </button>
-    </div>
-
-    <div id="notice" class="notice"></div>
-
-    <!-- BALANCE CARDS -->
-
-    <div class="balance-grid">
-
-        <div class="balance-card primary">
-            <div class="card-label">Available Balance</div>
-            <div class="balance-value" id="balance">$0.00</div>
-        </div>
-
-        <div class="balance-card">
-            <div class="card-label">Account Status</div>
-            <div class="balance-value" id="accountStatus"
-                 style="font-size:20px;">
-                Loading...
-            </div>
-        </div>
-
-        <div class="balance-card">
-            <div class="card-label">Verification</div>
-            <div class="balance-value" id="verificationStatus"
-                 style="font-size:20px;">
-                Loading...
-            </div>
-        </div>
-
-    </div>
-
-    <!-- TRANSACTION ACTIONS -->
-
-    <div class="section">
-
-        <div class="section-header">
-            <h2>Transaction Requests</h2>
-        </div>
-
-        <div class="action-grid">
-
-            <!-- DEPOSIT -->
-
-            <div class="action-card">
-
-                <h3>Deposit</h3>
+                <h1>
+                    Welcome back,
+                    <span id="username">User</span>
+                </h1>
 
                 <p>
-                    Submit a deposit request for administrator review.
+                    Manage your account and monitor your
+                    transaction activity.
                 </p>
+            </div>
 
-                <form onsubmit="submitTransaction(event, 'Deposit')">
+            <button
+                type="button"
+                class="btn btn-secondary"
+                id="logoutButton"
+            >
+                Sign Out
+            </button>
 
-                    <div class="input-row">
+        </div>
 
-                        <input
-                            type="number"
-                            name="amount"
-                            min="0.01"
-                            step="0.01"
-                            placeholder="Amount"
-                            required
+
+        <!-- Messages -->
+
+        <div
+            id="message"
+            class="alert"
+            style="display: none;"
+        ></div>
+
+
+        <!-- Account Statistics -->
+
+        <div class="grid grid-3">
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Available Balance
+                </div>
+
+                <div
+                    class="stat-value positive"
+                    id="balance"
+                >
+                    $0.00
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Account Status
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="accountStatus"
+                >
+                    —
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-label">
+                    Transactions
+                </div>
+
+                <div
+                    class="stat-value"
+                    id="transactionCount"
+                >
+                    0
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Wallet Actions -->
+
+        <section class="section">
+
+            <div class="grid grid-2">
+
+                <!-- Deposit -->
+
+                <div class="card">
+
+                    <div class="badge">
+                        Deposit
+                    </div>
+
+                    <h3>
+                        Request a Deposit
+                    </h3>
+
+                    <p>
+                        Submit a deposit request for
+                        administrator review.
+                    </p>
+
+                    <form
+                        id="depositForm"
+                        style="margin-top: 20px;"
+                    >
+
+                        <div class="form-group">
+
+                            <label for="depositAmount">
+                                Amount
+                            </label>
+
+                            <input
+                                id="depositAmount"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="depositCurrency">
+                                Currency
+                            </label>
+
+                            <select
+                                id="depositCurrency"
+                            >
+                                <option value="USDT">
+                                    USDT
+                                </option>
+
+                                <option value="BTC">
+                                    BTC
+                                </option>
+
+                                <option value="ETH">
+                                    ETH
+                                </option>
+
+                                <option value="USD">
+                                    USD
+                                </option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="depositTxid">
+                                Transaction ID
+                            </label>
+
+                            <input
+                                id="depositTxid"
+                                type="text"
+                                maxlength="255"
+                                placeholder="Optional transaction ID"
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-primary"
                         >
+                            Submit Deposit
+                        </button>
 
-                        <select name="crypto_currency">
-                            <option value="USDT">USDT</option>
-                            <option value="BTC">BTC</option>
-                            <option value="ETH">ETH</option>
-                            <option value="USD">USD</option>
-                        </select>
+                    </form>
+
+                </div>
+
+
+                <!-- Withdrawal -->
+
+                <div class="card">
+
+                    <div class="badge">
+                        Withdrawal
+                    </div>
+
+                    <h3>
+                        Request a Withdrawal
+                    </h3>
+
+                    <p>
+                        Submit a withdrawal request using
+                        your available balance.
+                    </p>
+
+                    <form
+                        id="withdrawalForm"
+                        style="margin-top: 20px;"
+                    >
+
+                        <div class="form-group">
+
+                            <label for="withdrawalAmount">
+                                Amount
+                            </label>
+
+                            <input
+                                id="withdrawalAmount"
+                                type="number"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="withdrawalCurrency">
+                                Currency
+                            </label>
+
+                            <select
+                                id="withdrawalCurrency"
+                            >
+                                <option value="USDT">
+                                    USDT
+                                </option>
+
+                                <option value="BTC">
+                                    BTC
+                                </option>
+
+                                <option value="ETH">
+                                    ETH
+                                </option>
+
+                                <option value="USD">
+                                    USD
+                                </option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label for="withdrawalTxid">
+                                Reference
+                            </label>
+
+                            <input
+                                id="withdrawalTxid"
+                                type="text"
+                                maxlength="255"
+                                placeholder="Optional reference"
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="btn btn-secondary"
+                        >
+                            Submit Withdrawal
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Account Information -->
+
+        <section>
+
+            <div class="card">
+
+                <div class="badge">
+                    Account
+                </div>
+
+                <h2>
+                    Account Information
+                </h2>
+
+                <div
+                    class="grid grid-2"
+                    style="margin-top: 20px;"
+                >
+
+                    <div>
+
+                        <p>
+                            <strong>
+                                Username
+                            </strong>
+                        </p>
+
+                        <p id="accountUsername">
+                            —
+                        </p>
 
                     </div>
 
-                    <input
-                        type="text"
-                        name="txid"
-                        maxlength="255"
-                        placeholder="Transaction ID (optional)"
-                        style="margin-top:10px;"
-                    >
 
-                    <button class="action-btn" type="submit">
-                        Submit Deposit
-                    </button>
+                    <div>
 
-                </form>
+                        <p>
+                            <strong>
+                                Email
+                            </strong>
+                        </p>
 
-            </div>
-
-            <!-- WITHDRAWAL -->
-
-            <div class="action-card">
-
-                <h3>Withdrawal</h3>
-
-                <p>
-                    Submit a withdrawal request for administrator review.
-                </p>
-
-                <form onsubmit="submitTransaction(event, 'Withdrawal')">
-
-                    <div class="input-row">
-
-                        <input
-                            type="number"
-                            name="amount"
-                            min="0.01"
-                            step="0.01"
-                            placeholder="Amount"
-                            required
-                        >
-
-                        <select name="crypto_currency">
-                            <option value="USDT">USDT</option>
-                            <option value="BTC">BTC</option>
-                            <option value="ETH">ETH</option>
-                            <option value="USD">USD</option>
-                        </select>
+                        <p id="accountEmail">
+                            —
+                        </p>
 
                     </div>
 
-                    <input
-                        type="text"
-                        name="txid"
-                        maxlength="255"
-                        placeholder="Transaction reference (optional)"
-                        style="margin-top:10px;"
-                    >
 
-                    <button
-                        class="action-btn withdraw-btn"
-                        type="submit"
-                    >
-                        Request Withdrawal
-                    </button>
+                    <div>
 
-                </form>
+                        <p>
+                            <strong>
+                                Verification
+                            </strong>
+                        </p>
+
+                        <p id="verificationStatus">
+                            —
+                        </p>
+
+                    </div>
+
+
+                    <div>
+
+                        <p>
+                            <strong>
+                                Account Type
+                            </strong>
+                        </p>
+
+                        <p id="accountType">
+                            Standard
+                        </p>
+
+                    </div>
+
+                </div>
 
             </div>
 
-        </div>
+        </section>
+
+
+        <!-- Transactions -->
+
+        <section class="section">
+
+            <div class="dashboard-header">
+
+                <div>
+
+                    <div class="badge">
+                        Activity
+                    </div>
+
+                    <h2>
+                        Transaction History
+                    </h2>
+
+                    <p>
+                        Review your recent account activity.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="table-wrapper">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Type
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Currency
+                            </th>
+
+                            <th>
+                                Status
+                            </th>
+
+                            <th>
+                                Date
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody id="transactionTable">
+
+                        <tr>
+
+                            <td
+                                colspan="5"
+                                style="text-align: center;"
+                            >
+                                Loading transactions...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
 
     </div>
 
-    <!-- TRANSACTION HISTORY -->
+</section>
 
-    <div class="section">
+{% endblock %}
 
-        <div class="section-header">
-            <h2>Transaction History</h2>
-        </div>
 
-        <div class="table-wrapper">
-
-            <table>
-
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Type</th>
-                        <th>Amount</th>
-                        <th>Currency</th>
-                        <th>Status</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-
-                <tbody id="transactionBody">
-
-                    <tr>
-                        <td colspan="6" class="empty-state">
-                            Loading transactions...
-                        </td>
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
-
-    <!-- ACCOUNT INFORMATION -->
-
-    <div class="section">
-
-        <div class="section-header">
-            <h2>Account Information</h2>
-        </div>
-
-        <div class="account-info">
-
-            <div class="info-item">
-                <span>Username</span>
-                <strong id="userUsername">—</strong>
-            </div>
-
-            <div class="info-item">
-                <span>Email</span>
-                <strong id="userEmail">—</strong>
-            </div>
-
-            <div class="info-item">
-                <span>Account ID</span>
-                <strong id="userId">—</strong>
-            </div>
-
-        </div>
-
-    </div>
-
-</div>
+{% block scripts %}
 
 <script>
 
-function showNotice(message, type) {
+const message =
+    document.getElementById("message");
 
-    const notice = document.getElementById("notice");
 
-    notice.textContent = message;
-    notice.className = "notice " + type;
+function showMessage(text, type) {
 
-    setTimeout(() => {
-        notice.className = "notice";
-        notice.textContent = "";
-    }, 5000);
+    message.textContent = text;
+
+    message.className =
+        "alert " +
+        (
+            type === "success"
+                ? "alert-success"
+                : "alert-danger"
+        );
+
+    message.style.display =
+        "block";
+}
+
+
+function formatMoney(value) {
+
+    const number =
+        Number(value || 0);
+
+    return new Intl.NumberFormat(
+        "en-US",
+        {
+            style: "currency",
+            currency: "USD"
+        }
+    ).format(number);
+}
+
+
+function escapeHtml(value) {
+
+    return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
+function formatDate(value) {
+
+    if (!value) {
+        return "—";
+    }
+
+    const date =
+        new Date(value);
+
+    if (Number.isNaN(date.getTime())) {
+        return "—";
+    }
+
+    return date.toLocaleString();
 }
 
 
@@ -543,72 +551,118 @@ async function loadDashboard() {
 
     try {
 
-        const response = await fetch("/dashboard");
-
-        if (response.status === 401) {
-            window.location.href = "/login-page";
-            return;
-        }
-
-        const data = await response.json();
-
-        if (!response.ok) {
-            showNotice(data.error || "Unable to load dashboard.", "error");
-            return;
-        }
-
-        const user = data.user;
-
-        document.getElementById("username").textContent =
-            user.username ? ", " + user.username : "";
-
-        document.getElementById("balance").textContent =
-            "$" + Number(user.balance).toLocaleString(
-                undefined,
+        const response =
+            await fetch(
+                "/dashboard",
                 {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2
+                    credentials: "same-origin"
                 }
             );
 
-        document.getElementById("accountStatus").textContent =
-            user.is_active ? "Active" : "Disabled";
 
-        document.getElementById("verificationStatus").textContent =
-            user.is_verified ? "Verified" : "Unverified";
+        const data =
+            await response.json();
 
-        document.getElementById("userUsername").textContent =
-            user.username || "—";
 
-        document.getElementById("userEmail").textContent =
-            user.email || "—";
+        if (!response.ok) {
 
-        document.getElementById("userId").textContent =
-            user.id || "—";
+            throw new Error(
+                data.error ||
+                "Unable to load dashboard."
+            );
 
-        renderTransactions(data.transactions || []);
+        }
+
+
+        const user =
+            data.user;
+
+
+        document.getElementById(
+            "username"
+        ).textContent =
+            user.username;
+
+
+        document.getElementById(
+            "accountUsername"
+        ).textContent =
+            user.username;
+
+
+        document.getElementById(
+            "accountEmail"
+        ).textContent =
+            user.email;
+
+
+        document.getElementById(
+            "balance"
+        ).textContent =
+            formatMoney(user.balance);
+
+
+        document.getElementById(
+            "accountStatus"
+        ).textContent =
+            user.is_active
+                ? "Active"
+                : "Disabled";
+
+
+        document.getElementById(
+            "verificationStatus"
+        ).textContent =
+            user.is_verified
+                ? "Verified"
+                : "Not verified";
+
+
+        const transactions =
+            data.transactions || [];
+
+
+        document.getElementById(
+            "transactionCount"
+        ).textContent =
+            transactions.length;
+
+
+        renderTransactions(
+            transactions
+        );
+
 
     } catch (error) {
 
-        console.error(error);
-
-        showNotice(
-            "Could not connect to the server.",
+        showMessage(
+            error.message,
             "error"
         );
+
     }
+
 }
 
 
-function renderTransactions(transactions) {
+function renderTransactions(
+    transactions
+) {
 
-    const body = document.getElementById("transactionBody");
+    const table =
+        document.getElementById(
+            "transactionTable"
+        );
+
 
     if (!transactions.length) {
 
-        body.innerHTML = `
+        table.innerHTML = `
             <tr>
-                <td colspan="6" class="empty-state">
+                <td
+                    colspan="5"
+                    style="text-align: center;"
+                >
                     No transactions yet.
                 </td>
             </tr>
@@ -617,125 +671,276 @@ function renderTransactions(transactions) {
         return;
     }
 
-    body.innerHTML = transactions.map(tx => {
 
-        const statusClass =
-            String(tx.status).toLowerCase();
+    table.innerHTML =
+        transactions.map(
+            function(transaction) {
 
-        const date = tx.created_at
-            ? new Date(tx.created_at).toLocaleString()
-            : "—";
+                const status =
+                    escapeHtml(
+                        transaction.status
+                    );
 
-        return `
-            <tr>
-                <td>#${tx.id}</td>
 
-                <td>${escapeHtml(tx.type)}</td>
+                const statusClass =
+                    transaction.status ===
+                    "Approved"
+                        ? "positive"
+                        : transaction.status ===
+                          "Rejected"
+                            ? "negative"
+                            : "";
 
-                <td>$${Number(tx.amount).toLocaleString(
-                    undefined,
-                    {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2
-                    }
-                )}</td>
 
-                <td>${escapeHtml(tx.currency)}</td>
+                return `
+                    <tr>
 
-                <td>
-                    <span class="status ${statusClass}">
-                        ${escapeHtml(tx.status)}
-                    </span>
-                </td>
+                        <td>
+                            ${escapeHtml(
+                                transaction.type
+                            )}
+                        </td>
 
-                <td>${escapeHtml(date)}</td>
-            </tr>
-        `;
+                        <td>
+                            ${escapeHtml(
+                                transaction.amount
+                            )}
+                        </td>
 
-    }).join("");
+                        <td>
+                            ${escapeHtml(
+                                transaction.currency
+                            )}
+                        </td>
+
+                        <td class="${statusClass}">
+                            ${status}
+                        </td>
+
+                        <td>
+                            ${escapeHtml(
+                                formatDate(
+                                    transaction.created_at
+                                )
+                            )}
+                        </td>
+
+                    </tr>
+                `;
+
+            }
+        ).join("");
+
 }
 
 
-async function submitTransaction(event, type) {
-
-    event.preventDefault();
-
-    const form = event.target;
-    const formData = new FormData(form);
-
-    formData.append("type", type);
+async function submitWalletRequest(
+    type,
+    amount,
+    currency,
+    txid
+) {
 
     try {
 
-        const response = await fetch(
-            "/wallet/request",
-            {
-                method: "POST",
-                body: formData
-            }
-        );
+        const response =
+            await fetch(
+                "/wallet/request",
+                {
+                    method: "POST",
 
-        const data = await response.json();
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    credentials:
+                        "same-origin",
+
+                    body: JSON.stringify({
+
+                        type: type,
+
+                        amount: amount,
+
+                        crypto_currency:
+                            currency,
+
+                        txid: txid
+
+                    })
+                }
+            );
+
+
+        const data =
+            await response.json();
+
 
         if (!response.ok) {
 
-            showNotice(
-                data.error || "Transaction request failed.",
-                "error"
+            throw new Error(
+                data.error ||
+                "Request failed."
             );
 
-            return;
         }
 
-        showNotice(
-            data.message || "Transaction request submitted.",
+
+        showMessage(
+            data.message ||
+            "Request submitted successfully.",
             "success"
         );
 
-        form.reset();
 
-        loadDashboard();
+        return true;
+
 
     } catch (error) {
 
-        console.error(error);
-
-        showNotice(
-            "Could not connect to the server.",
+        showMessage(
+            error.message,
             "error"
         );
+
+        return false;
+
     }
+
 }
 
 
-async function logout() {
+/* Deposit */
 
-    try {
+document.getElementById(
+    "depositForm"
+).addEventListener(
+    "submit",
+    async function(event) {
 
-        await fetch(
-            "/logout",
-            {
-                method: "POST"
-            }
-        );
+        event.preventDefault();
 
-    } finally {
 
-        window.location.href = "/login-page";
+        const amount =
+            document.getElementById(
+                "depositAmount"
+            ).value;
+
+
+        const currency =
+            document.getElementById(
+                "depositCurrency"
+            ).value;
+
+
+        const txid =
+            document.getElementById(
+                "depositTxid"
+            ).value.trim();
+
+
+        const success =
+            await submitWalletRequest(
+                "Deposit",
+                amount,
+                currency,
+                txid
+            );
+
+
+        if (success) {
+
+            this.reset();
+
+            loadDashboard();
+
+        }
+
     }
-}
+);
 
 
-function escapeHtml(value) {
+/* Withdrawal */
 
-    return String(value)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-}
+document.getElementById(
+    "withdrawalForm"
+).addEventListener(
+    "submit",
+    async function(event) {
 
+        event.preventDefault();
+
+
+        const amount =
+            document.getElementById(
+                "withdrawalAmount"
+            ).value;
+
+
+        const currency =
+            document.getElementById(
+                "withdrawalCurrency"
+            ).value;
+
+
+        const txid =
+            document.getElementById(
+                "withdrawalTxid"
+            ).value.trim();
+
+
+        const success =
+            await submitWalletRequest(
+                "Withdrawal",
+                amount,
+                currency,
+                txid
+            );
+
+
+        if (success) {
+
+            this.reset();
+
+            loadDashboard();
+
+        }
+
+    }
+);
+
+
+/* Logout */
+
+document.getElementById(
+    "logoutButton"
+).addEventListener(
+    "click",
+    async function() {
+
+        try {
+
+            await fetch(
+                "/logout",
+                {
+                    method: "POST",
+                    credentials: "same-origin"
+                }
+            );
+
+        } finally {
+
+            window.location.href =
+                "/login-page";
+
+        }
+
+    }
+);
+
+
+/* Load the dashboard */
 
 loadDashboard();
 
