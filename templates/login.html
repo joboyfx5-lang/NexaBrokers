@@ -1,185 +1,262 @@
 {% extends "base.html" %}
 
-{% block title %}Login | NexaBrokers{% endblock %}
+{% block title %}
+Sign In — NexaBrokers
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .auth-wrapper {
-        min-height: 75vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 50px 20px;
-    }
+<section class="section">
 
-    .auth-card {
-        width: 100%;
-        max-width: 460px;
-        background: rgba(17, 24, 39, 0.92);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
-    }
+    <div class="form-wrapper">
 
-    .auth-logo {
-        width: 58px;
-        height: 58px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #38bdf8, #6366f1);
-        font-size: 25px;
-        font-weight: 800;
-        margin-bottom: 24px;
-    }
+        <div class="card">
 
-    .auth-card h1 {
-        margin: 0 0 10px;
-        font-size: 32px;
-    }
-
-    .auth-subtitle {
-        color: #94a3b8;
-        margin-bottom: 30px;
-        line-height: 1.6;
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 14px;
-        color: #cbd5e1;
-        font-weight: 600;
-    }
-
-    .form-group input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 14px 16px;
-        border-radius: 12px;
-        border: 1px solid #334155;
-        background: #0f172a;
-        color: white;
-        font-size: 15px;
-        outline: none;
-    }
-
-    .form-group input:focus {
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
-    }
-
-    .login-button {
-        width: 100%;
-        padding: 15px;
-        border: none;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #38bdf8, #6366f1);
-        color: white;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        margin-top: 8px;
-    }
-
-    .login-button:hover {
-        opacity: 0.92;
-    }
-
-    .auth-footer {
-        text-align: center;
-        margin-top: 25px;
-        color: #94a3b8;
-        font-size: 14px;
-    }
-
-    .auth-footer a {
-        color: #38bdf8;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .security-note {
-        margin-top: 25px;
-        padding: 13px;
-        border-radius: 12px;
-        background: rgba(56, 189, 248, 0.06);
-        border: 1px solid rgba(56, 189, 248, 0.12);
-        color: #94a3b8;
-        font-size: 12px;
-        line-height: 1.5;
-        text-align: center;
-    }
-</style>
-
-<div class="auth-wrapper">
-
-    <div class="auth-card">
-
-        <div class="auth-logo">
-            N
-        </div>
-
-        <h1>Welcome back</h1>
-
-        <p class="auth-subtitle">
-            Sign in to your NexaBrokers account and continue to your dashboard.
-        </p>
-
-        <form method="POST" action="/login-request">
-
-            <div class="form-group">
-                <label for="email">Email address</label>
-
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    autocomplete="email"
-                    required
-                >
+            <div class="badge">
+                Welcome back
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
+            <h1>
+                Sign in to NexaBrokers
+            </h1>
 
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Enter your password"
-                    autocomplete="current-password"
-                    required
+            <p class="form-subtitle">
+                Enter your account details to continue
+                to your secure dashboard.
+            </p>
+
+            <div
+                id="message"
+                class="alert"
+                style="display: none;"
+            ></div>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email address
+                    </label>
+
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="Enter your password"
+                        autocomplete="current-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary form-submit"
+                    id="submitButton"
                 >
-            </div>
+                    Sign In
+                </button>
 
-            <button class="login-button" type="submit">
-                Continue
-            </button>
+            </form>
 
-        </form>
 
-        <div class="auth-footer">
-            Don't have an account?
-            <a href="/signup-page">Create one</a>
-        </div>
+            <p
+                style="
+                    text-align: center;
+                    margin-top: 22px;
+                    color: var(--muted);
+                "
+            >
+                Don't have an account?
 
-        <div class="security-note">
-            🔒 Your account uses password authentication and verification.
-            This is a demo/management environment and does not represent
-            a licensed brokerage or custody service.
+                <a
+                    href="/signup-page"
+                    style="
+                        color: var(--primary);
+                        font-weight: 700;
+                    "
+                >
+                    Create one
+                </a>
+            </p>
+
         </div>
 
     </div>
 
-</div>
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+const form =
+    document.getElementById("loginForm");
+
+const message =
+    document.getElementById("message");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        const email =
+            document.getElementById(
+                "email"
+            ).value.trim();
+
+        const password =
+            document.getElementById(
+                "password"
+            ).value;
+
+
+        message.style.display =
+            "none";
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "Signing in...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/login-request",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            email: email,
+                            password: password
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Unable to sign in."
+                );
+
+            }
+
+
+            /*
+             * Save the email temporarily so
+             * the verification page knows which
+             * account is being verified.
+             */
+
+            sessionStorage.setItem(
+                "verificationEmail",
+                email
+            );
+
+
+            /*
+             * If development OTP mode is enabled,
+             * keep the code available for testing.
+             */
+
+            if (
+                data.development_code
+            ) {
+
+                sessionStorage.setItem(
+                    "developmentCode",
+                    data.development_code
+                );
+
+            }
+
+
+            message.textContent =
+                data.message ||
+                "Verification code sent.";
+
+            message.className =
+                "alert alert-success";
+
+            message.style.display =
+                "block";
+
+
+            setTimeout(
+                function() {
+
+                    window.location.href =
+                        "/verify-page";
+
+                },
+                700
+            );
+
+
+        } catch (error) {
+
+            message.textContent =
+                error.message;
+
+            message.className =
+                "alert alert-danger";
+
+            message.style.display =
+                "block";
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "Sign In";
+        }
+
+    }
+);
+
+</script>
 
 {% endblock %}
