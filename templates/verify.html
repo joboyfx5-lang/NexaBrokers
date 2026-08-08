@@ -22,7 +22,7 @@ Verify Account — NexaBrokers
 
             <p class="form-subtitle">
                 Enter the six-digit verification code
-                sent to your email address.
+                generated for your account.
             </p>
 
             <div
@@ -31,7 +31,7 @@ Verify Account — NexaBrokers
                 style="display: none;"
             ></div>
 
-            <form id="verifyForm">
+            <form id="verifyForm" novalidate>
 
                 <div class="form-group">
 
@@ -49,7 +49,6 @@ Verify Account — NexaBrokers
 
                 </div>
 
-
                 <div class="form-group">
 
                     <label for="code">
@@ -61,7 +60,6 @@ Verify Account — NexaBrokers
                         name="code"
                         type="text"
                         inputmode="numeric"
-                        pattern="[0-9]{6}"
                         maxlength="6"
                         placeholder="000000"
                         autocomplete="one-time-code"
@@ -69,7 +67,6 @@ Verify Account — NexaBrokers
                     >
 
                 </div>
-
 
                 <button
                     type="submit"
@@ -81,7 +78,6 @@ Verify Account — NexaBrokers
 
             </form>
 
-
             <p
                 style="
                     text-align: center;
@@ -91,7 +87,6 @@ Verify Account — NexaBrokers
             >
                 Code expires after 10 minutes.
             </p>
-
 
             <p
                 style="
@@ -118,10 +113,11 @@ Verify Account — NexaBrokers
 
 {% endblock %}
 
-
 {% block scripts %}
 
 <script>
+
+"use strict";
 
 const form =
     document.getElementById("verifyForm");
@@ -140,8 +136,7 @@ const submitButton =
 
 
 /*
- * Recover the email saved during signup
- * or login.
+ * Restore the email used during signup/login.
  */
 
 const savedEmail =
@@ -150,57 +145,107 @@ const savedEmail =
     );
 
 if (savedEmail) {
-    emailInput.value = savedEmail;
+
+    emailInput.value =
+        savedEmail;
+
 }
 
 
 /*
- * Only allow numbers in the verification
- * code field.
+ * Only allow numbers in the
+ * verification code field.
  */
 
 codeInput.addEventListener(
     "input",
-    function() {
+    function () {
 
         this.value =
             this.value
-                .replace(/\D/g, "")
+                .replace(/[^0-9]/g, "")
                 .slice(0, 6);
 
     }
 );
 
 
+function showMessage(
+    text,
+    type
+) {
+
+    message.textContent =
+        text;
+
+    message.className =
+        "alert " + type;
+
+    message.style.display =
+        "block";
+
+}
+
+
 form.addEventListener(
     "submit",
-    async function(event) {
+    async function (event) {
 
         event.preventDefault();
 
+
         const email =
-            emailInput.value.trim();
+            emailInput.value
+                .trim()
+                .toLowerCase();
+
 
         const code =
-            codeInput.value.trim();
+            codeInput.value
+                .replace(/\D/g, "")
+                .slice(0, 6);
 
 
         message.style.display =
             "none";
 
 
-        if (!/^\d{6}$/.test(code)) {
+        if (!email) {
 
-            message.textContent =
-                "Please enter the 6-digit verification code.";
-
-            message.className =
-                "alert alert-danger";
-
-            message.style.display =
-                "block";
+            showMessage(
+                "Please enter your email address.",
+                "alert-danger"
+            );
 
             return;
+
+        }
+
+
+        if (
+            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                .test(email)
+        ) {
+
+            showMessage(
+                "Please enter a valid email address.",
+                "alert-danger"
+            );
+
+            return;
+
+        }
+
+
+        if (!/^\d{6}$/.test(code)) {
+
+            showMessage(
+                "Please enter the 6-digit verification code.",
+                "alert-danger"
+            );
+
+            return;
+
         }
 
 
@@ -217,6 +262,7 @@ form.addEventListener(
                 await fetch(
                     "/verify-code",
                     {
+
                         method: "POST",
 
                         headers: {
@@ -228,12 +274,23 @@ form.addEventListener(
                             email: email,
                             code: code
                         })
+
                     }
                 );
 
 
-            const data =
-                await response.json();
+            let data;
+
+            try {
+
+                data =
+                    await response.json();
+
+            } catch {
+
+                data = {};
+
+            }
 
 
             if (!response.ok) {
@@ -246,22 +303,12 @@ form.addEventListener(
             }
 
 
-            message.textContent =
+            showMessage(
                 data.message ||
-                "Verification successful.";
+                "Verification successful.",
+                "alert-success"
+            );
 
-            message.className =
-                "alert alert-success";
-
-            message.style.display =
-                "block";
-
-
-            /*
-             * The verification process is complete,
-             * so the temporary email information
-             * is no longer needed.
-             */
 
             sessionStorage.removeItem(
                 "verificationEmail"
@@ -272,13 +319,8 @@ form.addEventListener(
             );
 
 
-            /*
-             * Give the success message a moment
-             * before opening the dashboard.
-             */
-
             setTimeout(
-                function() {
+                function () {
 
                     window.location.href =
                         "/dashboard-page";
@@ -290,14 +332,12 @@ form.addEventListener(
 
         } catch (error) {
 
-            message.textContent =
-                error.message;
+            showMessage(
+                error.message ||
+                "Verification failed. Please try again.",
+                "alert-danger"
+            );
 
-            message.className =
-                "alert alert-danger";
-
-            message.style.display =
-                "block";
 
             submitButton.disabled =
                 false;
