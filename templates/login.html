@@ -1,262 +1,65 @@
 {% extends "base.html" %}
 
-{% block title %}
-Sign In — NexaBrokers
-{% endblock %}
+{% block title %}Sign In | NexaBrokers{% endblock %}
 
 {% block content %}
 
-<section class="section">
+<div class="auth-container">
 
-    <div class="form-wrapper">
+    <div class="auth-card">
 
-        <div class="card">
+        <h1>Sign In</h1>
 
-            <div class="badge">
-                Welcome back
-            </div>
+        <p class="auth-subtitle">
+            Welcome back to NexaBrokers.
+        </p>
 
-            <h1>
-                Sign in to NexaBrokers
-            </h1>
+        <form method="POST" action="{{ url_for('login_request') }}">
 
-            <p class="form-subtitle">
-                Enter your account details to continue
-                to your secure dashboard.
-            </p>
+            <label for="email">
+                Email
+            </label>
 
-            <div
-                id="message"
-                class="alert"
-                style="display: none;"
-            ></div>
-
-            <form id="loginForm">
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Email address
-                    </label>
-
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="you@example.com"
-                        autocomplete="email"
-                        required
-                    >
-
-                </div>
-
-
-                <div class="form-group">
-
-                    <label for="password">
-                        Password
-                    </label>
-
-                    <input
-                        id="password"
-                        name="password"
-                        type="password"
-                        placeholder="Enter your password"
-                        autocomplete="current-password"
-                        required
-                    >
-
-                </div>
-
-
-                <button
-                    type="submit"
-                    class="btn btn-primary form-submit"
-                    id="submitButton"
-                >
-                    Sign In
-                </button>
-
-            </form>
-
-
-            <p
-                style="
-                    text-align: center;
-                    margin-top: 22px;
-                    color: var(--muted);
-                "
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                autocomplete="email"
             >
-                Don't have an account?
 
-                <a
-                    href="/signup-page"
-                    style="
-                        color: var(--primary);
-                        font-weight: 700;
-                    "
-                >
-                    Create one
-                </a>
-            </p>
+            <label for="password">
+                Password
+            </label>
 
-        </div>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+                autocomplete="current-password"
+            >
+
+            <button
+                type="submit"
+                class="primary-btn"
+            >
+                Sign In
+            </button>
+
+        </form>
+
+        <p class="auth-footer">
+            Don't have an account?
+            <a href="{{ url_for('signup_page') }}">
+                Create an Account
+            </a>
+        </p>
 
     </div>
 
-</section>
-
-{% endblock %}
-
-
-{% block scripts %}
-
-<script>
-
-const form =
-    document.getElementById("loginForm");
-
-const message =
-    document.getElementById("message");
-
-const submitButton =
-    document.getElementById("submitButton");
-
-
-form.addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-        const email =
-            document.getElementById(
-                "email"
-            ).value.trim();
-
-        const password =
-            document.getElementById(
-                "password"
-            ).value;
-
-
-        message.style.display =
-            "none";
-
-        submitButton.disabled =
-            true;
-
-        submitButton.textContent =
-            "Signing in...";
-
-
-        try {
-
-            const response =
-                await fetch(
-                    "/login-request",
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            email: email,
-                            password: password
-                        })
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.error ||
-                    "Unable to sign in."
-                );
-
-            }
-
-
-            /*
-             * Save the email temporarily so
-             * the verification page knows which
-             * account is being verified.
-             */
-
-            sessionStorage.setItem(
-                "verificationEmail",
-                email
-            );
-
-
-            /*
-             * If development OTP mode is enabled,
-             * keep the code available for testing.
-             */
-
-            if (
-                data.development_code
-            ) {
-
-                sessionStorage.setItem(
-                    "developmentCode",
-                    data.development_code
-                );
-
-            }
-
-
-            message.textContent =
-                data.message ||
-                "Verification code sent.";
-
-            message.className =
-                "alert alert-success";
-
-            message.style.display =
-                "block";
-
-
-            setTimeout(
-                function() {
-
-                    window.location.href =
-                        "/verify-page";
-
-                },
-                700
-            );
-
-
-        } catch (error) {
-
-            message.textContent =
-                error.message;
-
-            message.className =
-                "alert alert-danger";
-
-            message.style.display =
-                "block";
-
-            submitButton.disabled =
-                false;
-
-            submitButton.textContent =
-                "Sign In";
-        }
-
-    }
-);
-
-</script>
+</div>
 
 {% endblock %}
