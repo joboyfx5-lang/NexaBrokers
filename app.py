@@ -4,6 +4,8 @@ from decimal import Decimal, InvalidOperation
 from datetime import datetime, timedelta, timezone
 from functools import wraps
 
+import resend
+
 from flask import (
     Flask,
     request,
@@ -13,9 +15,13 @@ from flask import (
     url_for,
     render_template,
 )
+
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import CheckConstraint
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import (
+    generate_password_hash,
+    check_password_hash,
+)
 
 
 app = Flask(__name__)
@@ -48,6 +54,7 @@ if database_url.startswith("postgres://"):
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 app.config["SESSION_COOKIE_HTTPONLY"] = True
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
@@ -60,6 +67,24 @@ app.config["SESSION_COOKIE_SECURE"] = (
 
 
 db = SQLAlchemy(app)
+
+
+# ============================================================
+# RESEND CONFIGURATION
+# ============================================================
+
+RESEND_API_KEY = os.environ.get(
+    "RESEND_API_KEY"
+)
+
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+
+
+RESEND_FROM_EMAIL = os.environ.get(
+    "RESEND_FROM_EMAIL",
+    "onboarding@resend.dev"
+)
 
 
 # ============================================================
@@ -351,120 +376,87 @@ def issue_otp(user):
     return code
 
 
+# ============================================================
+# RESEND EMAIL
+# ============================================================
+
 def send_otp_email(
     to_email,
     code
 ):
 
-    sender = os.environ.get(
-        "MAIL_USERNAME"
-    )
-
-    password = os.environ.get(
-        "MAIL_PASSWORD"
-    )
-
-    if not sender:
+    if not RESEND_API_KEY:
 
         app.logger.error(
-            "EMAIL ERROR: MAIL_USERNAME is missing."
+            "EMAIL ERROR: RESEND_API_KEY is missing."
         )
 
         return False
 
-    if not password:
-
-        app.logger.error(
-            "EMAIL ERROR: MAIL_PASSWORD is missing."
-        )
-
-        return False
-
-    import smtplib
-
-    from email.mime.text import MIMEText
-
-    message = MIMEText(
-        f"Your NexaBrokers verification code is {code}. "
-        "It expires in 10 minutes.",
-        "plain"
-    )
-
-    message["Subject"] = (
-        "NexaBrokers Verification Code"
-    )
-
-    message["From"] = sender
-    message["To"] = to_email
 
     try:
 
         app.logger.info(
-            "EMAIL: Connecting to Gmail SMTP."
+            "EMAIL: Sending verification email with Resend."
         )
 
-        with smtplib.SMTP_SSL(
-            "smtp.gmail.com",
-            465,
-            timeout=10
-        ) as smtp:
 
-            app.logger.info(
-                "EMAIL: Gmail SMTP connection established."
-            )
+        result = resend.Emails.send({
 
-            smtp.login(
-                sender,
-                password
-            )
+            "from":
+                RESEND_FROM_EMAIL,
 
-            app.logger.info(
-                "EMAIL: Gmail authentication successful."
-            )
+            "to":
+                [to_email],
 
-            smtp.sendmail(
-                sender,
-                to_email,
-                message.as_string()
-            )
+            "subject":
+                "NexaBrokers Verification Code",
+
+            "html":
+                f"""
+                <html>
+                    <body>
+                        <h2>NexaBrokers Verification</h2>
+
+                        <p>
+                            Your verification code is:
+                        </p>
+
+                        <h1>
+                            {code}
+                        </h1>
+
+                        <p>
+                            This code expires in 10 minutes.
+                        </p>
+
+                        <p>
+                            If you did not create this account,
+                            you can ignore this email.
+                        </p>
+                    </body>
+                </html>
+                """
+
+        })
+
 
         app.logger.info(
-            "EMAIL: Verification email sent successfully to %s.",
-            to_email
+            "EMAIL: Resend accepted verification email."
+        )
+
+        app.logger.info(
+            "EMAIL: Resend response: %s",
+            result
         )
 
         return True
 
-    except smtplib.SMTPAuthenticationError:
-
-        app.logger.exception(
-            "EMAIL ERROR: Gmail authentication failed. "
-            "Check MAIL_USERNAME and MAIL_PASSWORD. "
-            "MAIL_PASSWORD must be a Google App Password."
-        )
-
-        return False
-
-    except smtplib.SMTPException:
-
-        app.logger.exception(
-            "EMAIL ERROR: Gmail SMTP rejected the email."
-        )
-
-        return False
-
-    except TimeoutError:
-
-        app.logger.exception(
-            "EMAIL ERROR: Gmail SMTP connection timed out."
-        )
-
-        return False
 
     except Exception:
 
         app.logger.exception(
-            "EMAIL ERROR: Unexpected email failure."
+            "EMAIL ERROR: Resend failed to send verification email."
         )
 
         return False
@@ -564,20 +556,24 @@ def signup():
         )
     )
 
+
     username = (
         data.get("username")
         or ""
     ).strip()
+
 
     email = (
         data.get("email")
         or ""
     ).strip().lower()
 
+
     password = (
         data.get("password")
         or ""
     )
+
 
     if len(username) < 3:
 
@@ -586,12 +582,14 @@ def signup():
                 "Username must contain at least 3 characters."
         }), 400
 
+
     if len(password) < 8:
 
         return jsonify({
             "error":
                 "Password must contain at least 8 characters."
         }), 400
+
 
     if not email:
 
@@ -600,10 +598,12 @@ def signup():
                 "Email is required."
         }), 400
 
+
     existing_user = User.query.filter(
         (User.email == email)
         | (User.username == username)
     ).first()
+
 
     if existing_user:
 
@@ -611,6 +611,7 @@ def signup():
             "error":
                 "Email or username already exists."
         }), 409
+
 
     user = User(
         username=username,
@@ -621,9 +622,11 @@ def signup():
         is_verified=False
     )
 
+
     code = issue_otp(
         user
     )
+
 
     db.session.add(
         user
@@ -631,24 +634,29 @@ def signup():
 
     db.session.commit()
 
+
     sent = send_otp_email(
         email,
         code
     )
 
+
     response = {
+
         "message":
             (
-                "Account created. "
-                "Verification email sent."
+                "Account created. Verification email sent."
                 if sent
                 else
                 "Account created, but the verification email "
                 "could not be sent. Check server logs."
             ),
+
         "email_sent":
             sent
+
     }
+
 
     return jsonify(
         response
@@ -671,19 +679,23 @@ def login_request():
         )
     )
 
+
     email = (
         data.get("email")
         or ""
     ).strip().lower()
+
 
     password = (
         data.get("password")
         or ""
     )
 
+
     user = User.query.filter_by(
         email=email
     ).first()
+
 
     if (
         not user
@@ -699,6 +711,7 @@ def login_request():
                 "Invalid email or password."
         }), 401
 
+
     if not user.is_active:
 
         return jsonify({
@@ -706,18 +719,23 @@ def login_request():
                 "Account is disabled."
         }), 403
 
+
     code = issue_otp(
         user
     )
 
+
     db.session.commit()
+
 
     sent = send_otp_email(
         user.email,
         code
     )
 
+
     response = {
+
         "message":
             (
                 "Verification code sent."
@@ -726,9 +744,12 @@ def login_request():
                 "Login accepted, but the verification email "
                 "could not be sent. Check server logs."
             ),
+
         "email_sent":
             sent
+
     }
+
 
     return jsonify(
         response
@@ -751,19 +772,23 @@ def verify_code():
         )
     )
 
+
     email = (
         data.get("email")
         or ""
     ).strip().lower()
+
 
     code = str(
         data.get("code")
         or ""
     ).strip()
 
+
     user = User.query.filter_by(
         email=email
     ).first()
+
 
     if (
         not user
@@ -775,13 +800,16 @@ def verify_code():
                 "Invalid verification code."
         }), 400
 
+
     now = datetime.now(
         timezone.utc
     )
 
+
     expires = (
         user.verification_expires_at
     )
+
 
     if (
         not expires
@@ -797,11 +825,13 @@ def verify_code():
                 "Invalid or expired verification code."
         }), 400
 
+
     user.is_verified = True
 
     user.verification_code_hash = None
 
     user.verification_expires_at = None
+
 
     session.clear()
 
@@ -809,7 +839,9 @@ def verify_code():
 
     session.permanent = True
 
+
     db.session.commit()
+
 
     return jsonify({
 
@@ -837,7 +869,7 @@ def logout():
 
 
 # ============================================================
-# TEMPORARY TEST ACCOUNT PASSWORD RESET
+# TEMPORARY PASSWORD RESET
 # ============================================================
 
 @app.route(
@@ -853,14 +885,17 @@ def temporary_reset_password():
         or request.form
     )
 
+
     reset_secret = str(
         data.get("reset_secret")
         or ""
     )
 
+
     expected_secret = os.environ.get(
         "RESET_SECRET"
     )
+
 
     if not expected_secret:
 
@@ -868,6 +903,7 @@ def temporary_reset_password():
             "error":
                 "RESET_SECRET is not configured."
         }), 503
+
 
     if not secrets.compare_digest(
         reset_secret,
@@ -879,15 +915,18 @@ def temporary_reset_password():
                 "Invalid reset secret."
         }), 403
 
+
     email = str(
         data.get("email")
         or ""
     ).strip().lower()
 
+
     new_password = str(
         data.get("new_password")
         or ""
     )
+
 
     if not email:
 
@@ -896,6 +935,7 @@ def temporary_reset_password():
                 "Email is required."
         }), 400
 
+
     if len(new_password) < 8:
 
         return jsonify({
@@ -903,9 +943,11 @@ def temporary_reset_password():
                 "Password must contain at least 8 characters."
         }), 400
 
+
     user = User.query.filter_by(
         email=email
     ).first()
+
 
     if not user:
 
@@ -914,13 +956,16 @@ def temporary_reset_password():
                 "User not found."
         }), 404
 
+
     user.password_hash = (
         generate_password_hash(
             new_password
         )
     )
 
+
     db.session.commit()
+
 
     return jsonify({
         "message":
@@ -938,6 +983,7 @@ def dashboard():
 
     user = current_user()
 
+
     transactions = (
         Transaction.query
         .filter_by(
@@ -948,6 +994,7 @@ def dashboard():
         )
         .all()
     )
+
 
     return jsonify({
 
@@ -1003,10 +1050,12 @@ def wallet_request():
         )
     )
 
+
     tx_type = str(
         data.get("type")
         or ""
     ).strip().title()
+
 
     currency = str(
         data.get(
@@ -1015,10 +1064,12 @@ def wallet_request():
         or "USDT"
     ).strip().upper()
 
+
     txid = str(
         data.get("txid")
         or ""
     ).strip()[:255]
+
 
     try:
 
@@ -1033,6 +1084,7 @@ def wallet_request():
                 str(exc)
         }), 400
 
+
     if tx_type not in {
         "Deposit",
         "Withdrawal"
@@ -1042,6 +1094,7 @@ def wallet_request():
             "error":
                 "Type must be Deposit or Withdrawal."
         }), 400
+
 
     if currency not in {
         "USDT",
@@ -1055,7 +1108,9 @@ def wallet_request():
                 "Unsupported currency."
         }), 400
 
+
     user = current_user()
+
 
     if (
         tx_type == "Withdrawal"
@@ -1066,6 +1121,7 @@ def wallet_request():
             "error":
                 "Insufficient available balance."
         }), 400
+
 
     tx = Transaction(
 
@@ -1083,11 +1139,13 @@ def wallet_request():
 
     )
 
+
     db.session.add(
         tx
     )
 
     db.session.commit()
+
 
     return jsonify({
 
@@ -1123,20 +1181,24 @@ def admin_login():
         )
     )
 
+
     username = (
         data.get("username")
         or ""
     ).strip()
+
 
     password = (
         data.get("password")
         or ""
     )
 
+
     admin = User.query.filter_by(
         username=username,
         is_admin=True
     ).first()
+
 
     if (
         not admin
@@ -1149,6 +1211,7 @@ def admin_login():
                 "Invalid admin credentials."
         }), 401
 
+
     if not check_password_hash(
         admin.password_hash,
         password
@@ -1159,11 +1222,13 @@ def admin_login():
                 "Invalid admin credentials."
         }), 401
 
+
     session.clear()
 
     session["user_id"] = admin.id
 
     session.permanent = True
+
 
     return jsonify({
 
@@ -1228,6 +1293,7 @@ def admin_users():
         .all()
     )
 
+
     return jsonify([
 
         {
@@ -1260,12 +1326,14 @@ def admin_user_detail(
         user_id
     )
 
+
     if not user:
 
         return jsonify({
             "error":
                 "User not found."
         }), 404
+
 
     transactions = (
         Transaction.query
@@ -1277,6 +1345,7 @@ def admin_user_detail(
         )
         .all()
     )
+
 
     return jsonify({
 
@@ -1324,10 +1393,12 @@ def admin_user_status(
         or request.form
     )
 
+
     user = db.session.get(
         User,
         user_id
     )
+
 
     if not user:
 
@@ -1336,9 +1407,11 @@ def admin_user_status(
                 "User not found."
         }), 404
 
+
     active = data.get(
         "active"
     )
+
 
     if str(active).lower() not in {
         "true",
@@ -1352,6 +1425,7 @@ def admin_user_status(
                 "active must be true or false."
         }), 400
 
+
     user.is_active = (
         str(active).lower()
         in {
@@ -1360,7 +1434,9 @@ def admin_user_status(
         }
     )
 
+
     db.session.commit()
+
 
     return jsonify({
 
@@ -1393,12 +1469,15 @@ def admin_balance_adjustment(
         or request.form
     )
 
+
     user = db.session.get(
         User,
         user_id
     )
 
+
     admin = current_user()
+
 
     if not user:
 
@@ -1407,15 +1486,18 @@ def admin_balance_adjustment(
                 "User not found."
         }), 404
 
+
     direction = str(
         data.get("direction")
         or ""
     ).lower()
 
+
     reason = str(
         data.get("reason")
         or ""
     ).strip()
+
 
     if direction not in {
         "add",
@@ -1427,12 +1509,14 @@ def admin_balance_adjustment(
                 "direction must be add or remove."
         }), 400
 
+
     if not reason:
 
         return jsonify({
             "error":
                 "A reason is required."
         }), 400
+
 
     try:
 
@@ -1447,9 +1531,11 @@ def admin_balance_adjustment(
                 str(exc)
         }), 400
 
+
     old_balance = Decimal(
         str(user.balance)
     )
+
 
     if (
         direction == "remove"
@@ -1460,6 +1546,7 @@ def admin_balance_adjustment(
             "error":
                 "Cannot remove more than the user's balance."
         }), 400
+
 
     if direction == "add":
 
@@ -1473,7 +1560,9 @@ def admin_balance_adjustment(
             old_balance - amount
         )
 
+
     user.balance = new_balance
+
 
     adjustment = BalanceAdjustment(
 
@@ -1489,11 +1578,13 @@ def admin_balance_adjustment(
 
     )
 
+
     db.session.add(
         adjustment
     )
 
     db.session.commit()
+
 
     return jsonify({
 
@@ -1524,6 +1615,7 @@ def admin_transactions():
         )
         .all()
     )
+
 
     return jsonify([
 
@@ -1567,15 +1659,18 @@ def review_transaction(
         or request.form
     )
 
+
     action = str(
         data.get("action")
         or ""
     ).lower()
 
+
     note = str(
         data.get("note")
         or ""
     ).strip()[:500]
+
 
     if action not in {
         "approve",
@@ -1587,10 +1682,12 @@ def review_transaction(
                 "action must be approve or reject."
         }), 400
 
+
     tx = db.session.get(
         Transaction,
         tx_id
     )
+
 
     if not tx:
 
@@ -1599,6 +1696,7 @@ def review_transaction(
                 "Transaction not found."
         }), 404
 
+
     if tx.status != "Pending":
 
         return jsonify({
@@ -1606,12 +1704,15 @@ def review_transaction(
                 "Only pending transactions can be reviewed."
         }), 409
 
+
     user = db.session.get(
         User,
         tx.user_id
     )
 
+
     admin = current_user()
+
 
     if action == "approve":
 
@@ -1626,6 +1727,7 @@ def review_transaction(
                 )
             )
 
+
         elif tx.type == "Withdrawal":
 
             current_balance = Decimal(
@@ -1636,6 +1738,7 @@ def review_transaction(
                 str(tx.amount)
             )
 
+
             if amount > current_balance:
 
                 return jsonify({
@@ -1643,16 +1746,20 @@ def review_transaction(
                         "Cannot approve withdrawal: insufficient balance."
                 }), 400
 
+
             user.balance = (
                 current_balance
                 - amount
             )
 
+
         tx.status = "Approved"
+
 
     else:
 
         tx.status = "Rejected"
+
 
     tx.admin_note = (
         note or None
@@ -1666,7 +1773,9 @@ def review_transaction(
         )
     )
 
+
     db.session.commit()
+
 
     return jsonify({
 
