@@ -1,187 +1,315 @@
 {% extends "base.html" %}
 
-{% block title %}Verify Account | NexaBrokers{% endblock %}
+{% block title %}
+Verify Account — NexaBrokers
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .verify-wrapper {
-        min-height: 75vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 50px 20px;
-    }
+<section class="section">
 
-    .verify-card {
-        width: 100%;
-        max-width: 460px;
-        background: rgba(17, 24, 39, 0.94);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
-        text-align: center;
-    }
+    <div class="form-wrapper">
 
-    .verify-icon {
-        width: 64px;
-        height: 64px;
-        margin: 0 auto 22px;
-        border-radius: 18px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #38bdf8, #6366f1);
-        font-size: 28px;
-    }
+        <div class="card">
 
-    .verify-card h1 {
-        margin: 0 0 10px;
-        color: white;
-        font-size: 30px;
-    }
+            <div class="badge">
+                Account Security
+            </div>
 
-    .verify-subtitle {
-        color: #94a3b8;
-        line-height: 1.6;
-        margin-bottom: 30px;
-    }
+            <h1>
+                Verify your account
+            </h1>
 
-    .email-display {
-        padding: 12px;
-        margin-bottom: 22px;
-        border-radius: 10px;
-        background: #0f172a;
-        border: 1px solid #334155;
-        color: #cbd5e1;
-        font-size: 14px;
-        word-break: break-word;
-    }
+            <p class="form-subtitle">
+                Enter the six-digit verification code
+                sent to your email address.
+            </p>
 
-    .code-input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 16px;
-        border-radius: 12px;
-        border: 1px solid #334155;
-        background: #0f172a;
-        color: white;
-        text-align: center;
-        font-size: 24px;
-        font-weight: 700;
-        letter-spacing: 8px;
-        outline: none;
-    }
+            <div
+                id="message"
+                class="alert"
+                style="display: none;"
+            ></div>
 
-    .code-input:focus {
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
-    }
+            <form id="verifyForm">
 
-    .verify-button {
-        width: 100%;
-        margin-top: 18px;
-        padding: 15px;
-        border: none;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #38bdf8, #6366f1);
-        color: white;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-    }
+                <div class="form-group">
 
-    .verify-button:hover {
-        opacity: 0.92;
-    }
+                    <label for="email">
+                        Email address
+                    </label>
 
-    .expiry-note {
-        margin-top: 18px;
-        color: #64748b;
-        font-size: 13px;
-        line-height: 1.5;
-    }
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        autocomplete="email"
+                        required
+                    >
 
-    .back-link {
-        display: inline-block;
-        margin-top: 25px;
-        color: #38bdf8;
-        text-decoration: none;
-        font-size: 14px;
-    }
+                </div>
 
-    .security-note {
-        margin-top: 25px;
-        padding: 13px;
-        border-radius: 12px;
-        background: rgba(56, 189, 248, 0.06);
-        border: 1px solid rgba(56, 189, 248, 0.12);
-        color: #94a3b8;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-</style>
 
-<div class="verify-wrapper">
+                <div class="form-group">
 
-    <div class="verify-card">
+                    <label for="code">
+                        Verification code
+                    </label>
 
-        <div class="verify-icon">
-            ✓
-        </div>
+                    <input
+                        id="code"
+                        name="code"
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        placeholder="000000"
+                        autocomplete="one-time-code"
+                        required
+                    >
 
-        <h1>Verify your account</h1>
+                </div>
 
-        <p class="verify-subtitle">
-            Enter the 6-digit verification code sent to your email address.
-        </p>
 
-        <div class="email-display">
-            {{ email or "Your email address" }}
-        </div>
+                <button
+                    type="submit"
+                    class="btn btn-primary form-submit"
+                    id="submitButton"
+                >
+                    Verify Account
+                </button>
 
-        <form method="POST" action="/verify-code">
+            </form>
 
-            <input
-                class="code-input"
-                type="text"
-                name="code"
-                placeholder="000000"
-                inputmode="numeric"
-                autocomplete="one-time-code"
-                pattern="[0-9]{6}"
-                minlength="6"
-                maxlength="6"
-                required
+
+            <p
+                style="
+                    text-align: center;
+                    margin-top: 22px;
+                    color: var(--muted);
+                "
             >
+                Code expires after 10 minutes.
+            </p>
 
-            <input
-                type="hidden"
-                name="email"
-                value="{{ email or '' }}"
+
+            <p
+                style="
+                    text-align: center;
+                    margin-top: 10px;
+                "
             >
+                <a
+                    href="/login-page"
+                    style="
+                        color: var(--primary);
+                        font-weight: 700;
+                    "
+                >
+                    Back to Sign In
+                </a>
+            </p>
 
-            <button class="verify-button" type="submit">
-                Verify & Continue
-            </button>
-
-        </form>
-
-        <p class="expiry-note">
-            Your verification code expires after 10 minutes.
-        </p>
-
-        <a class="back-link" href="/login-page">
-            ← Back to Login
-        </a>
-
-        <div class="security-note">
-            🔒 Never share your verification code with anyone.
         </div>
 
     </div>
 
-</div>
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+const form =
+    document.getElementById("verifyForm");
+
+const emailInput =
+    document.getElementById("email");
+
+const codeInput =
+    document.getElementById("code");
+
+const message =
+    document.getElementById("message");
+
+const submitButton =
+    document.getElementById("submitButton");
+
+
+/*
+ * Recover the email saved during signup
+ * or login.
+ */
+
+const savedEmail =
+    sessionStorage.getItem(
+        "verificationEmail"
+    );
+
+if (savedEmail) {
+    emailInput.value = savedEmail;
+}
+
+
+/*
+ * Only allow numbers in the verification
+ * code field.
+ */
+
+codeInput.addEventListener(
+    "input",
+    function() {
+
+        this.value =
+            this.value
+                .replace(/\D/g, "")
+                .slice(0, 6);
+
+    }
+);
+
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+        const email =
+            emailInput.value.trim();
+
+        const code =
+            codeInput.value.trim();
+
+
+        message.style.display =
+            "none";
+
+
+        if (!/^\d{6}$/.test(code)) {
+
+            message.textContent =
+                "Please enter the 6-digit verification code.";
+
+            message.className =
+                "alert alert-danger";
+
+            message.style.display =
+                "block";
+
+            return;
+        }
+
+
+        submitButton.disabled =
+            true;
+
+        submitButton.textContent =
+            "Verifying...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/verify-code",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            email: email,
+                            code: code
+                        })
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Verification failed."
+                );
+
+            }
+
+
+            message.textContent =
+                data.message ||
+                "Verification successful.";
+
+            message.className =
+                "alert alert-success";
+
+            message.style.display =
+                "block";
+
+
+            /*
+             * The verification process is complete,
+             * so the temporary email information
+             * is no longer needed.
+             */
+
+            sessionStorage.removeItem(
+                "verificationEmail"
+            );
+
+            sessionStorage.removeItem(
+                "developmentCode"
+            );
+
+
+            /*
+             * Give the success message a moment
+             * before opening the dashboard.
+             */
+
+            setTimeout(
+                function() {
+
+                    window.location.href =
+                        "/dashboard-page";
+
+                },
+                900
+            );
+
+
+        } catch (error) {
+
+            message.textContent =
+                error.message;
+
+            message.className =
+                "alert alert-danger";
+
+            message.style.display =
+                "block";
+
+            submitButton.disabled =
+                false;
+
+            submitButton.textContent =
+                "Verify Account";
+
+        }
+
+    }
+);
+
+</script>
 
 {% endblock %}
