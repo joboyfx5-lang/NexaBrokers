@@ -364,10 +364,18 @@ def send_otp_email(
         "MAIL_PASSWORD"
     )
 
-    if not sender or not password:
+    if not sender:
 
-        app.logger.warning(
-            "MAIL_USERNAME/MAIL_PASSWORD are not configured."
+        app.logger.error(
+            "EMAIL ERROR: MAIL_USERNAME is missing."
+        )
+
+        return False
+
+    if not password:
+
+        app.logger.error(
+            "EMAIL ERROR: MAIL_PASSWORD is missing."
         )
 
         return False
@@ -391,15 +399,27 @@ def send_otp_email(
 
     try:
 
+        app.logger.info(
+            "EMAIL: Connecting to Gmail SMTP."
+        )
+
         with smtplib.SMTP_SSL(
             "smtp.gmail.com",
             465,
             timeout=10
         ) as smtp:
 
+            app.logger.info(
+                "EMAIL: Gmail SMTP connection established."
+            )
+
             smtp.login(
                 sender,
                 password
+            )
+
+            app.logger.info(
+                "EMAIL: Gmail authentication successful."
             )
 
             smtp.sendmail(
@@ -408,12 +428,43 @@ def send_otp_email(
                 message.as_string()
             )
 
+        app.logger.info(
+            "EMAIL: Verification email sent successfully to %s.",
+            to_email
+        )
+
         return True
+
+    except smtplib.SMTPAuthenticationError:
+
+        app.logger.exception(
+            "EMAIL ERROR: Gmail authentication failed. "
+            "Check MAIL_USERNAME and MAIL_PASSWORD. "
+            "MAIL_PASSWORD must be a Google App Password."
+        )
+
+        return False
+
+    except smtplib.SMTPException:
+
+        app.logger.exception(
+            "EMAIL ERROR: Gmail SMTP rejected the email."
+        )
+
+        return False
+
+    except TimeoutError:
+
+        app.logger.exception(
+            "EMAIL ERROR: Gmail SMTP connection timed out."
+        )
+
+        return False
 
     except Exception:
 
         app.logger.exception(
-            "SMTP error"
+            "EMAIL ERROR: Unexpected email failure."
         )
 
         return False
@@ -587,14 +638,17 @@ def signup():
 
     response = {
         "message":
-            "Account created. Verification code generated."
+            (
+                "Account created. "
+                "Verification email sent."
+                if sent
+                else
+                "Account created, but the verification email "
+                "could not be sent. Check server logs."
+            ),
+        "email_sent":
+            sent
     }
-
-    if not sent and app.debug:
-
-        response[
-            "development_code"
-        ] = code
 
     return jsonify(
         response
@@ -665,14 +719,16 @@ def login_request():
 
     response = {
         "message":
-            "Verification code sent."
+            (
+                "Verification code sent."
+                if sent
+                else
+                "Login accepted, but the verification email "
+                "could not be sent. Check server logs."
+            ),
+        "email_sent":
+            sent
     }
-
-    if not sent and app.debug:
-
-        response[
-            "development_code"
-        ] = code
 
     return jsonify(
         response
