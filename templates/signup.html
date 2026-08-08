@@ -1,214 +1,304 @@
 {% extends "base.html" %}
 
-{% block title %}Create Account | NexaBrokers{% endblock %}
+{% block title %}
+Create Account — NexaBrokers
+{% endblock %}
 
 {% block content %}
 
-<style>
-    .auth-wrapper {
-        min-height: 75vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 50px 20px;
-    }
+<section class="section">
 
-    .auth-card {
-        width: 100%;
-        max-width: 480px;
-        background: rgba(17, 24, 39, 0.94);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 24px;
-        padding: 40px;
-        box-shadow: 0 25px 70px rgba(0, 0, 0, 0.35);
-    }
+    <div class="form-wrapper">
 
-    .auth-logo {
-        width: 58px;
-        height: 58px;
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, #38bdf8, #6366f1);
-        color: white;
-        font-size: 25px;
-        font-weight: 800;
-        margin-bottom: 24px;
-    }
+        <div class="card">
 
-    .auth-card h1 {
-        margin: 0 0 10px;
-        font-size: 32px;
-        color: white;
-    }
-
-    .auth-subtitle {
-        color: #94a3b8;
-        margin-bottom: 30px;
-        line-height: 1.6;
-    }
-
-    .form-group {
-        margin-bottom: 18px;
-    }
-
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: #cbd5e1;
-        font-size: 14px;
-        font-weight: 600;
-    }
-
-    .form-group input {
-        width: 100%;
-        box-sizing: border-box;
-        padding: 14px 16px;
-        border-radius: 12px;
-        border: 1px solid #334155;
-        background: #0f172a;
-        color: white;
-        font-size: 15px;
-        outline: none;
-    }
-
-    .form-group input:focus {
-        border-color: #38bdf8;
-        box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
-    }
-
-    .password-hint {
-        color: #64748b;
-        font-size: 12px;
-        margin-top: 6px;
-    }
-
-    .signup-button {
-        width: 100%;
-        padding: 15px;
-        border: none;
-        border-radius: 12px;
-        background: linear-gradient(135deg, #38bdf8, #6366f1);
-        color: white;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        margin-top: 8px;
-    }
-
-    .signup-button:hover {
-        opacity: 0.92;
-    }
-
-    .auth-footer {
-        text-align: center;
-        margin-top: 25px;
-        color: #94a3b8;
-        font-size: 14px;
-    }
-
-    .auth-footer a {
-        color: #38bdf8;
-        text-decoration: none;
-        font-weight: 600;
-    }
-
-    .security-note {
-        margin-top: 25px;
-        padding: 13px;
-        border-radius: 12px;
-        background: rgba(56, 189, 248, 0.06);
-        border: 1px solid rgba(56, 189, 248, 0.12);
-        color: #94a3b8;
-        font-size: 12px;
-        line-height: 1.5;
-        text-align: center;
-    }
-</style>
-
-<div class="auth-wrapper">
-
-    <div class="auth-card">
-
-        <div class="auth-logo">
-            N
-        </div>
-
-        <h1>Create your account</h1>
-
-        <p class="auth-subtitle">
-            Join NexaBrokers and set up your secure account in a few steps.
-        </p>
-
-        <form method="POST" action="/signup">
-
-            <div class="form-group">
-                <label for="username">Username</label>
-
-                <input
-                    id="username"
-                    name="username"
-                    type="text"
-                    placeholder="Choose a username"
-                    minlength="3"
-                    maxlength="80"
-                    autocomplete="username"
-                    required
-                >
+            <div class="badge">
+                NexaBrokers
             </div>
 
-            <div class="form-group">
-                <label for="email">Email address</label>
+            <h1>
+                Create your account
+            </h1>
 
-                <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    maxlength="255"
-                    autocomplete="email"
-                    required
-                >
-            </div>
+            <p class="form-subtitle">
+                Create a secure account to access your
+                NexaBrokers dashboard.
+            </p>
 
-            <div class="form-group">
-                <label for="password">Password</label>
 
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="Create a password"
-                    minlength="8"
-                    autocomplete="new-password"
-                    required
-                >
+            <div
+                id="message"
+                class="alert"
+                style="display: none;"
+            ></div>
 
-                <div class="password-hint">
-                    Password must contain at least 8 characters.
+
+            <form id="signupForm">
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="Choose a username"
+                        minlength="3"
+                        maxlength="80"
+                        autocomplete="username"
+                        required
+                    >
+
                 </div>
-            </div>
 
-            <button class="signup-button" type="submit">
-                Create Account
-            </button>
 
-        </form>
+                <div class="form-group">
 
-        <div class="auth-footer">
-            Already have an account?
-            <a href="/login-page">Sign in</a>
-        </div>
+                    <label for="email">
+                        Email address
+                    </label>
 
-        <div class="security-note">
-            🔒 Your password is securely hashed before being stored.
-            NexaBrokers is currently a demo/management environment and
-            does not represent a licensed brokerage or custody service.
+                    <input
+                        id="email"
+                        name="email"
+                        type="email"
+                        placeholder="you@example.com"
+                        maxlength="255"
+                        autocomplete="email"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="At least 8 characters"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="confirmPassword">
+                        Confirm password
+                    </label>
+
+                    <input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type="password"
+                        placeholder="Enter your password again"
+                        minlength="8"
+                        autocomplete="new-password"
+                        required
+                    >
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="btn btn-primary form-submit"
+                    id="submitButton"
+                >
+                    Create Account
+                </button>
+
+            </form>
+
+
+            <p
+                style="
+                    text-align: center;
+                    margin-top: 22px;
+                    color: var(--muted);
+                "
+            >
+                Already have an account?
+
+                <a
+                    href="/login-page"
+                    style="color: var(--primary); font-weight: 700;"
+                >
+                    Sign in
+                </a>
+            </p>
+
         </div>
 
     </div>
 
-</div>
+</section>
+
+{% endblock %}
+
+
+{% block scripts %}
+
+<script>
+
+const form = document.getElementById("signupForm");
+const message = document.getElementById("message");
+const submitButton = document.getElementById("submitButton");
+
+form.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const email =
+        document.getElementById("email").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const confirmPassword =
+        document.getElementById("confirmPassword").value;
+
+
+    message.style.display = "none";
+
+
+    if (password !== confirmPassword) {
+
+        message.textContent =
+            "Passwords do not match.";
+
+        message.className =
+            "alert alert-danger";
+
+        message.style.display =
+            "block";
+
+        return;
+    }
+
+
+    if (password.length < 8) {
+
+        message.textContent =
+            "Password must contain at least 8 characters.";
+
+        message.className =
+            "alert alert-danger";
+
+        message.style.display =
+            "block";
+
+        return;
+    }
+
+
+    submitButton.disabled = true;
+
+    submitButton.textContent =
+        "Creating account...";
+
+
+    try {
+
+        const response = await fetch(
+            "/signup",
+            {
+                method: "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password
+                })
+            }
+        );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Unable to create account."
+            );
+        }
+
+
+        message.textContent =
+            data.message ||
+            "Account created successfully.";
+
+        message.className =
+            "alert alert-success";
+
+        message.style.display =
+            "block";
+
+
+        /*
+         * Store the email temporarily so the
+         * verification page knows which account
+         * is being verified.
+         */
+
+        sessionStorage.setItem(
+            "verificationEmail",
+            email
+        );
+
+
+        setTimeout(function() {
+
+            window.location.href =
+                "/verify-page";
+
+        }, 1200);
+
+
+    } catch (error) {
+
+        message.textContent =
+            error.message;
+
+        message.className =
+            "alert alert-danger";
+
+        message.style.display =
+            "block";
+
+
+        submitButton.disabled =
+            false;
+
+        submitButton.textContent =
+            "Create Account";
+    }
+
+});
+
+</script>
 
 {% endblock %}
