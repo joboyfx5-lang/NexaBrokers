@@ -47,11 +47,8 @@ if database_url.startswith("postgres://"):
 
 
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url
-
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 app.config["SESSION_COOKIE_HTTPONLY"] = True
-
 app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
 app.config["SESSION_COOKIE_SECURE"] = (
@@ -68,7 +65,6 @@ db = SQLAlchemy(app)
 # ============================================================
 # MODELS
 # ============================================================
-
 
 class User(db.Model):
 
@@ -253,7 +249,6 @@ class BalanceAdjustment(db.Model):
 # HELPERS
 # ============================================================
 
-
 def money(value):
 
     try:
@@ -392,14 +387,14 @@ def send_otp_email(
     )
 
     message["From"] = sender
-
     message["To"] = to_email
 
     try:
 
         with smtplib.SMTP_SSL(
             "smtp.gmail.com",
-            465
+            465,
+            timeout=10
         ) as smtp:
 
             smtp.login(
@@ -441,7 +436,6 @@ def json_user(user):
 # PUBLIC PAGES
 # ============================================================
 
-
 @app.route("/")
 def home():
 
@@ -481,6 +475,7 @@ def dashboard_page():
     user = current_user()
 
     if user.is_admin:
+
         return redirect(
             url_for("admin_page")
         )
@@ -501,7 +496,6 @@ def admin_page():
 # ============================================================
 # AUTHENTICATION
 # ============================================================
-
 
 @app.route(
     "/signup",
@@ -796,10 +790,13 @@ def verify_code():
 
 
     return jsonify({
+
         "message":
             "Login successful.",
+
         "user":
             json_user(user)
+
     })
 
 
@@ -818,9 +815,113 @@ def logout():
 
 
 # ============================================================
-# USER DASHBOARD
+# TEMPORARY TEST ACCOUNT PASSWORD RESET
 # ============================================================
 
+@app.route(
+    "/temporary-reset-password",
+    methods=["POST"]
+)
+def temporary_reset_password():
+
+    data = (
+        request.get_json(
+            silent=True
+        )
+        or request.form
+    )
+
+
+    reset_secret = str(
+        data.get("reset_secret")
+        or ""
+    )
+
+
+    expected_secret = os.environ.get(
+        "RESET_SECRET"
+    )
+
+
+    if not expected_secret:
+
+        return jsonify({
+            "error":
+                "RESET_SECRET is not configured."
+        }), 503
+
+
+    if not secrets.compare_digest(
+        reset_secret,
+        expected_secret
+    ):
+
+        return jsonify({
+            "error":
+                "Invalid reset secret."
+        }), 403
+
+
+    username = str(
+        data.get("username")
+        or ""
+    ).strip()
+
+
+    new_password = str(
+        data.get("new_password")
+        or ""
+    )
+
+
+    if not username:
+
+        return jsonify({
+            "error":
+                "Username is required."
+        }), 400
+
+
+    if len(new_password) < 8:
+
+        return jsonify({
+            "error":
+                "Password must contain at least 8 characters."
+        }), 400
+
+
+    user = User.query.filter_by(
+        username=username
+    ).first()
+
+
+    if not user:
+
+        return jsonify({
+            "error":
+                "User not found."
+        }), 404
+
+
+    user.password_hash = (
+        generate_password_hash(
+            new_password
+        )
+    )
+
+
+    db.session.commit()
+
+
+    return jsonify({
+        "message":
+            "Password reset successfully."
+    })
+
+
+# ============================================================
+# USER DASHBOARD
+# ============================================================
 
 @app.route("/dashboard")
 @login_required
@@ -877,7 +978,6 @@ def dashboard():
 # ============================================================
 # WALLET REQUESTS
 # ============================================================
-
 
 @app.route(
     "/wallet/request",
@@ -1011,7 +1111,6 @@ def wallet_request():
 # ADMIN AUTHENTICATION
 # ============================================================
 
-
 @app.route(
     "/admin/login",
     methods=["POST"]
@@ -1092,7 +1191,6 @@ def admin_login():
 # ADMIN OVERVIEW
 # ============================================================
 
-
 @app.route("/admin/overview")
 @admin_required
 def admin_overview():
@@ -1128,7 +1226,6 @@ def admin_overview():
 # ============================================================
 # ADMIN USERS
 # ============================================================
-
 
 @app.route("/admin/users")
 @admin_required
@@ -1302,7 +1399,6 @@ def admin_user_status(
 # ADMIN BALANCE ADJUSTMENT
 # ============================================================
 
-
 @app.route(
     "/admin/users/<int:user_id>/balance",
     methods=["POST"]
@@ -1453,7 +1549,6 @@ def admin_balance_adjustment(
 # ============================================================
 # ADMIN TRANSACTIONS
 # ============================================================
-
 
 @app.route("/admin/transactions")
 @admin_required
@@ -1649,7 +1744,6 @@ def review_transaction(
 # HEALTH
 # ============================================================
 
-
 @app.route("/health")
 def health():
 
@@ -1663,7 +1757,6 @@ def health():
 # DATABASE INITIALIZATION
 # ============================================================
 
-
 with app.app_context():
 
     db.create_all()
@@ -1672,7 +1765,6 @@ with app.app_context():
 # ============================================================
 # LOCAL SERVER
 # ============================================================
-
 
 if __name__ == "__main__":
 
