@@ -416,25 +416,17 @@ def issue_otp(user):
     return code
 
 
-def send_otp_email(
-    to_email,
-    code,
-):
+def send_otp_email(to_email, code):
+    """Send a verification email, or skip entirely in development mode."""
+    if DEV_VERIFICATION_MODE:
+        app.logger.info("DEV MODE: Email sending skipped – code %s", code)
+        return True   # pretend it was sent
 
-    sender = os.environ.get(
-        "MAIL_USERNAME"
-    )
-
-    password = os.environ.get(
-        "MAIL_PASSWORD"
-    )
+    sender = os.environ.get("MAIL_USERNAME")
+    password = os.environ.get("MAIL_PASSWORD")
 
     if not sender or not password:
-
-        app.logger.warning(
-            "MAIL_USERNAME/MAIL_PASSWORD are not configured."
-        )
-
+        app.logger.warning("MAIL_USERNAME/MAIL_PASSWORD are not configured.")
         return False
 
     message = MIMEText(
