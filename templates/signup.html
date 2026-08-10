@@ -247,9 +247,18 @@ form.addEventListener("submit", async function(event) {
         }
 
 
-        message.textContent =
+        // Build success message – include dev code if present
+        let successMsg =
             data.message ||
             "Account created successfully.";
+
+        if (data.development_code) {
+            successMsg +=
+                " Your verification code: " +
+                data.development_code;
+        }
+
+        message.textContent = successMsg;
 
         message.className =
             "alert alert-success";
@@ -270,12 +279,18 @@ form.addEventListener("submit", async function(event) {
         );
 
 
+        // Delay redirect: long enough to copy the code
+        const redirectDelay =
+            data.development_code
+                ? 15000   // 15 seconds when dev code is shown
+                : 1200;   // normal fast redirect
+
         setTimeout(function() {
 
             window.location.href =
                 "/verify-page";
 
-        }, 1200);
+        }, redirectDelay);
 
 
     } catch (error) {
