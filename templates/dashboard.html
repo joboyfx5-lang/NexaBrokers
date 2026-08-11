@@ -11,12 +11,10 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: var(--font); background: #f4f6f9; display: flex; min-height: 100vh; }
-  /* Sidebar */
   .sidebar {
     width: 260px; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%); color: white;
     padding: 2rem 1.5rem; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
-    z-index: 10; box-shadow: 4px 0 20px rgba(0,0,0,0.05);
-    transition: transform 0.3s;
+    z-index: 10; box-shadow: 4px 0 20px rgba(0,0,0,0.05); transition: transform 0.3s;
   }
   .sidebar-logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 2.5rem; letter-spacing: -0.3px; }
   .sidebar-logo span { color: var(--accent); }
@@ -24,29 +22,28 @@
   .nav-menu li { margin-bottom: 0.5rem; }
   .nav-menu a {
     color: rgba(255,255,255,0.75); text-decoration: none; padding: 0.8rem 1rem; border-radius: 10px;
-    display: block; font-weight: 500; transition: all 0.2s;
+    display: block; font-weight: 500; transition: all 0.2s; cursor: pointer;
   }
   .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.1); color: white; }
   .sidebar-footer { margin-top: auto; font-size: 0.85rem; color: rgba(255,255,255,0.5); }
-  .sidebar-footer a { color: rgba(255,255,255,0.7); text-decoration: none; }
   .hamburger { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 20; background: var(--primary); color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 1.5rem; cursor: pointer; }
-  /* Main content */
-  .main-content {
-    margin-left: 260px; flex: 1; padding: 2rem; transition: margin-left 0.3s;
-  }
+  .main-content { margin-left: 260px; flex: 1; padding: 2rem; transition: margin-left 0.3s; }
   .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
   .page-title { font-size: 1.8rem; font-weight: 700; color: var(--gray-800); }
-  .user-badge { background: white; border-radius: 40px; padding: 0.5rem 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-weight: 600; color: var(--primary); }
-  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+  .user-badge { background: white; border-radius: 40px; padding: 0.5rem 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-weight: 600; color: var(--primary); cursor: pointer; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap: 1.2rem; margin-bottom: 2rem; }
   .card { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.03); }
   .balance-card { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%); color: white; }
+  .profit-card { background: white; }
   .card-label { font-size: 0.9rem; opacity: 0.8; margin-bottom: 0.5rem; }
-  .card-value { font-size: 2rem; font-weight: 700; }
-  .actions { display: flex; gap: 1rem; margin-bottom: 2rem; }
-  .btn { padding: 0.7rem 2rem; border-radius: 40px; font-weight: 600; border: none; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; }
+  .card-value { font-size: 1.8rem; font-weight: 700; }
+  .profit-positive { color: var(--success); }
+  .profit-negative { color: var(--danger); }
+  .actions { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .btn { padding: 0.7rem 2rem; border-radius: 40px; font-weight: 600; border: none; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; }
   .btn-deposit { background: var(--success); color: white; }
   .btn-withdraw { background: var(--danger); color: white; }
-  .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+  .btn-settings { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
   .btn:hover { transform: translateY(-1px); }
   .transactions-section { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.03); }
   .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800); }
@@ -57,7 +54,7 @@
   .status.approved { background: #e6f7ed; color: var(--success); }
   .status.pending { background: #fff3e0; color: var(--warning); }
   .status.rejected { background: #fdecea; color: var(--danger); }
-  /* Modal */
+  /* Modals */
   .modal {
     display: none; position: fixed; top:0; left:0; width:100%; height:100%;
     background: rgba(10,37,64,0.7); backdrop-filter: blur(4px); z-index:100;
@@ -75,6 +72,9 @@
   .form-group input, .form-group select { width: 100%; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--gray-200); font-family: var(--font); }
   .btn-primary { background: var(--primary); color: white; width: 100%; margin-top: 0.5rem; }
   .btn-secondary { background: var(--gray-200); color: var(--gray-800); width: 100%; margin-top: 0.5rem; }
+  .alert { padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.95rem; margin-bottom: 1.5rem; text-align: center; font-weight: 500; }
+  .alert-success { background: #e6f7ed; color: var(--success); border: 1px solid #b8e6d0; }
+  .alert-danger { background: #fdecea; color: var(--danger); border: 1px solid #f5c6cb; }
   @media (max-width: 768px) {
     .sidebar { transform: translateX(-100%); }
     .sidebar.open { transform: translateX(0); }
@@ -82,32 +82,55 @@
     .hamburger { display: block; }
   }
 </style>
+
 <button class="hamburger" id="menuToggle">☰</button>
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">Nexa<span>Brokers</span></div>
   <ul class="nav-menu">
-    <li><a href="/dashboard-page" class="active">Dashboard</a></li>
-    <li><a href="#" id="depositBtnSide">Deposit</a></li>
-    <li><a href="#" id="withdrawBtnSide">Withdraw</a></li>
-    <li><a href="#" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">Logout</a></li>
+    <li><a href="/dashboard-page" class="active">🏠 Dashboard</a></li>
+    <li><a id="depositBtnSide">💰 Deposit</a></li>
+    <li><a id="withdrawBtnSide">📤 Withdraw</a></li>
+    <li><a id="settingsBtnSide">⚙️ Settings</a></li>
+    <li><a id="logoutBtnSide" style="color: #f8d7da;">🚪 Logout</a></li>
   </ul>
   <form id="logoutForm" action="/logout" method="POST" style="display:none;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"></form>
   <div class="sidebar-footer">© 2025 NexaBrokers</div>
 </div>
+
 <div class="main-content">
   <div class="top-bar">
     <h1 class="page-title">Dashboard</h1>
     <div class="user-badge" id="userBadge">Loading...</div>
   </div>
+
+  <!-- Financial overview cards -->
   <div class="cards-grid">
-    <div class="card balance-card"><div class="card-label">Total Balance</div><div class="card-value" id="balanceDisplay">$0.00</div></div>
-    <div class="card"><div class="card-label">Pending Transactions</div><div class="card-value" id="pendingCount">0</div></div>
-    <div class="card"><div class="card-label">Account Status</div><div class="card-value" id="accountStatus">Verified</div></div>
+    <div class="card balance-card">
+      <div class="card-label">Current Balance</div>
+      <div class="card-value" id="balanceDisplay">$0.00</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Invested</div>
+      <div class="card-value" id="totalInvested">$0.00</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Withdrawn</div>
+      <div class="card-value" id="totalWithdrawn">$0.00</div>
+    </div>
+    <div class="card profit-card">
+      <div class="card-label">Profit / Loss</div>
+      <div class="card-value" id="profitLoss">$0.00</div>
+    </div>
   </div>
+
+  <!-- Quick actions -->
   <div class="actions">
     <button class="btn btn-deposit" id="depositBtn">+ Deposit</button>
     <button class="btn btn-withdraw" id="withdrawBtn">- Withdraw</button>
+    <button class="btn btn-settings" id="settingsBtn">⚙️ Settings</button>
   </div>
+
+  <!-- Transactions -->
   <div class="transactions-section">
     <h2 class="section-title">Recent Transactions</h2>
     <div style="overflow-x:auto;">
@@ -116,6 +139,7 @@
     </div>
   </div>
 </div>
+
 <!-- Transaction Modal -->
 <div id="txModal" class="modal">
   <div class="modal-card">
@@ -128,54 +152,99 @@
     <button class="btn btn-secondary" id="closeTxModal">Cancel</button>
   </div>
 </div>
+
+<!-- Settings Modal -->
+<div id="settingsModal" class="modal">
+  <div class="modal-card">
+    <h3>Account Settings</h3>
+    <div id="settingsMessage" class="alert" style="display:none;"></div>
+    <div class="form-group">
+      <label>Username</label>
+      <input type="text" id="profileUsername" disabled style="background:#f4f6f9;">
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="profileEmail" disabled style="background:#f4f6f9;">
+    </div>
+    <hr style="margin:1.5rem 0; border-color:#e2e6ed;">
+    <h4 style="margin-bottom:1rem;">Change Password</h4>
+    <div class="form-group">
+      <label for="currentPassword">Current Password</label>
+      <input type="password" id="currentPassword" placeholder="Enter current password" required>
+    </div>
+    <div class="form-group">
+      <label for="newPassword">New Password</label>
+      <input type="password" id="newPassword" placeholder="At least 8 characters" minlength="8" required>
+    </div>
+    <div class="form-group">
+      <label for="confirmNewPassword">Confirm New Password</label>
+      <input type="password" id="confirmNewPassword" placeholder="Re-enter new password" minlength="8" required>
+    </div>
+    <button class="btn btn-primary" id="changePasswordBtn">Update Password</button>
+    <button class="btn btn-secondary" id="closeSettingsModal">Cancel</button>
+  </div>
+</div>
 {% endblock %}
+
 {% block scripts %}
 <script>
 function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
-// Mobile menu
+
 const menuToggle = document.getElementById("menuToggle");
 const sidebar = document.getElementById("sidebar");
 menuToggle.addEventListener("click", () => sidebar.classList.toggle("open"));
-// Load dashboard
+
+let userData = null;
+
 async function loadDashboard() {
   try {
     const res = await fetch("/dashboard", { headers: { "X-CSRFToken": getCSRFToken() } });
     if (!res.ok) { window.location.href = "/login-page"; return; }
     const data = await res.json();
+    userData = data.user;
+
     document.getElementById("userBadge").textContent = `👤 ${esc(data.user.username)}`;
-    document.getElementById("balanceDisplay").textContent = `$${data.user.balance}`;
-    document.getElementById("accountStatus").textContent = data.user.is_verified ? "Verified" : "Unverified";
-    const pending = data.transactions.filter(t => t.status === "Pending").length;
-    document.getElementById("pendingCount").textContent = pending;
+    document.getElementById("balanceDisplay").textContent = `$${Number(data.user.balance).toFixed(2)}`;
+    document.getElementById("totalInvested").textContent = `$${Number(data.stats.total_invested).toFixed(2)}`;
+    document.getElementById("totalWithdrawn").textContent = `$${Number(data.stats.total_withdrawn).toFixed(2)}`;
+
+    const profit = parseFloat(data.stats.profit);
+    const profitEl = document.getElementById("profitLoss");
+    profitEl.textContent = `${profit >= 0 ? '+' : ''}$${profit.toFixed(2)}`;
+    profitEl.className = "card-value " + (profit >= 0 ? "profit-positive" : "profit-negative");
+
+    // Transactions
     const tbody = document.getElementById("transactionBody");
     tbody.innerHTML = "";
     if (data.transactions.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="5">No transactions yet.</td></tr>'; return;
+      tbody.innerHTML = '<tr><td colspan="5">No transactions yet.</td></tr>';
+    } else {
+      data.transactions.forEach(tx => {
+        const row = document.createElement("tr");
+        row.innerHTML = `<td>${esc(tx.type)}</td><td>$${Number(tx.amount).toFixed(2)}</td><td>${esc(tx.currency)}</td>
+          <td><span class="status ${esc(tx.status.toLowerCase())}">${esc(tx.status)}</span></td>
+          <td>${tx.created_at ? new Date(tx.created_at).toLocaleDateString() : '—'}</td>`;
+        tbody.appendChild(row);
+      });
     }
-    data.transactions.forEach(tx => {
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${esc(tx.type)}</td><td>$${esc(tx.amount)}</td><td>${esc(tx.currency)}</td>
-        <td><span class="status ${esc(tx.status.toLowerCase())}">${esc(tx.status)}</span></td>
-        <td>${tx.created_at ? new Date(tx.created_at).toLocaleDateString() : '—'}</td>`;
-      tbody.appendChild(row);
-    });
   } catch (err) { console.error(err); }
 }
 loadDashboard();
-// Wallet modal
+
+// Wallet modal (unchanged)
 const txModal = document.getElementById("txModal");
 const txModalTitle = document.getElementById("txModalTitle");
 const txTypeSelect = document.getElementById("txType");
 const closeTxModal = document.getElementById("closeTxModal");
-document.getElementById("depositBtn").addEventListener("click", () => openModal("Deposit"));
-document.getElementById("withdrawBtn").addEventListener("click", () => openModal("Withdrawal"));
-document.getElementById("depositBtnSide").addEventListener("click", (e) => { e.preventDefault(); openModal("Deposit"); });
-document.getElementById("withdrawBtnSide").addEventListener("click", (e) => { e.preventDefault(); openModal("Withdrawal"); });
-function openModal(type) {
+function openWalletModal(type) {
   txModalTitle.textContent = type;
   txTypeSelect.value = type;
   txModal.classList.add("active");
 }
+document.getElementById("depositBtn").addEventListener("click", () => openWalletModal("Deposit"));
+document.getElementById("withdrawBtn").addEventListener("click", () => openWalletModal("Withdrawal"));
+document.getElementById("depositBtnSide").addEventListener("click", (e) => { e.preventDefault(); openWalletModal("Deposit"); });
+document.getElementById("withdrawBtnSide").addEventListener("click", (e) => { e.preventDefault(); openWalletModal("Withdrawal"); });
 closeTxModal.addEventListener("click", () => txModal.classList.remove("active"));
 document.getElementById("submitTxBtn").addEventListener("click", async () => {
   const type = txTypeSelect.value;
@@ -193,6 +262,68 @@ document.getElementById("submitTxBtn").addEventListener("click", async () => {
     if (res.ok) { alert(data.message); txModal.classList.remove("active"); loadDashboard(); }
     else alert("Error: " + data.error);
   } catch (e) { alert("Request failed."); }
+});
+
+// Settings modal (unchanged)
+const settingsModal = document.getElementById("settingsModal");
+const closeSettingsModal = document.getElementById("closeSettingsModal");
+document.getElementById("settingsBtn").addEventListener("click", () => openSettingsModal());
+document.getElementById("settingsBtnSide").addEventListener("click", (e) => { e.preventDefault(); openSettingsModal(); });
+function openSettingsModal() {
+  if (!userData) return alert("User data not loaded yet.");
+  document.getElementById("profileUsername").value = userData.username;
+  document.getElementById("profileEmail").value = userData.email;
+  document.getElementById("currentPassword").value = "";
+  document.getElementById("newPassword").value = "";
+  document.getElementById("confirmNewPassword").value = "";
+  document.getElementById("settingsMessage").style.display = "none";
+  settingsModal.classList.add("active");
+}
+closeSettingsModal.addEventListener("click", () => settingsModal.classList.remove("active"));
+document.getElementById("changePasswordBtn").addEventListener("click", async () => {
+  const currentPassword = document.getElementById("currentPassword").value;
+  const newPassword = document.getElementById("newPassword").value;
+  const confirmNewPassword = document.getElementById("confirmNewPassword").value;
+  const msg = document.getElementById("settingsMessage");
+  msg.style.display = "none";
+
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    msg.textContent = "All fields are required."; msg.className = "alert alert-danger"; msg.style.display = "block"; return;
+  }
+  if (newPassword.length < 8) {
+    msg.textContent = "New password must be at least 8 characters."; msg.className = "alert alert-danger"; msg.style.display = "block"; return;
+  }
+  if (newPassword !== confirmNewPassword) {
+    msg.textContent = "New passwords do not match."; msg.className = "alert alert-danger"; msg.style.display = "block"; return;
+  }
+
+  const btn = document.getElementById("changePasswordBtn");
+  btn.disabled = true; btn.textContent = "Updating...";
+  try {
+    const res = await fetch("/change-password", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
+      body: JSON.stringify({ current_password: currentPassword, new_password: newPassword })
+    });
+    const data = await res.json();
+    if (res.ok) {
+      msg.textContent = "Password updated successfully."; msg.className = "alert alert-success"; msg.style.display = "block";
+      document.getElementById("currentPassword").value = "";
+      document.getElementById("newPassword").value = "";
+      document.getElementById("confirmNewPassword").value = "";
+    } else {
+      msg.textContent = "Error: " + (data.error || "Failed to update password."); msg.className = "alert alert-danger"; msg.style.display = "block";
+    }
+  } catch (e) {
+    msg.textContent = "Network error."; msg.className = "alert alert-danger"; msg.style.display = "block";
+  }
+  btn.disabled = false; btn.textContent = "Update Password";
+});
+
+// Logout
+document.getElementById("logoutBtnSide").addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("logoutForm").submit();
 });
 </script>
 {% endblock %}
