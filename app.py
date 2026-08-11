@@ -1078,7 +1078,7 @@ def forgot_password():
 
 
 # ============================================================
-# USER DASHBOARD API
+# USER DASHBOARD API (with investment metrics)
 # ============================================================
 
 @app.route("/dashboard")
@@ -1087,29 +1087,41 @@ def dashboard():
 
     user = current_user()
 
-
+    # Get all transactions for this user
     transactions = (
         Transaction.query
-        .filter_by(
-            user_id=user.id
-        )
-        .order_by(
-            Transaction.created_at.desc()
-        )
+        .filter_by(user_id=user.id)
+        .order_by(Transaction.created_at.desc())
         .all()
     )
 
+    # Calculate financial metrics from approved transactions
+    total_invested = Decimal("0.00")
+    total_withdrawn = Decimal("0.00")
+
+    for tx in transactions:
+        if tx.status == "Approved":
+            if tx.type == "Deposit":
+                total_invested += Decimal(str(tx.amount))
+            elif tx.type == "Withdrawal":
+                total_withdrawn += Decimal(str(tx.amount))
+
+    current_balance = Decimal(str(user.balance))
+    profit = current_balance + total_withdrawn - total_invested
 
     return jsonify({
 
-        "message":
-            "Dashboard API",
+        "message": "Dashboard API",
 
-        "user":
-            json_user(user),
+        "user": json_user(user),
+
+        "stats": {
+            "total_invested": str(total_invested),
+            "total_withdrawn": str(total_withdrawn),
+            "profit": str(profit),
+        },
 
         "transactions": [
-
             {
                 "id": t.id,
                 "type": t.type,
@@ -1118,19 +1130,44 @@ def dashboard():
                 "txid": t.txid,
                 "status": t.status,
                 "admin_note": t.admin_note,
-                "created_at":
-                    (
-                        t.created_at.isoformat()
-                        if t.created_at
-                        else None
-                    ),
+                "created_at": (
+                    t.created_at.isoformat() if t.created_at else None
+                ),
             }
-
             for t in transactions
-
         ]
-
     })
+
+
+# ============================================================
+# CHANGE PASSWORD (user settings)
+# ============================================================
+
+@app.route(
+    "/change-password",
+    methods=["POST"],
+)
+@login_required
+def change_password():
+
+    data = request_data()
+    current_pw = str(data.get("current_password") or "")
+    new_pw = str(data.get("new_password") or "")
+
+    user = current_user()
+
+    if not user.password_hash or not check_password_hash(
+        user.password_hash, current_pw
+    ):
+        return jsonify({"error": "Current password is incorrect."}), 401
+
+    if len(new_pw) < 8:
+        return jsonify({"error": "New password must be at least 8 characters."}), 400
+
+    user.password_hash = generate_password_hash(new_pw)
+    db.session.commit()
+
+    return jsonify({"message": "Password changed successfully."})
 
 
 # ============================================================
