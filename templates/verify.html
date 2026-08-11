@@ -1,355 +1,212 @@
 {% extends "base.html" %}
 
-{% block title %}
-Verify Account — NexaBrokers
-{% endblock %}
+{% block title %}Verify — NexaBrokers{% endblock %}
 
 {% block content %}
+<style>
+  :root {
+    --primary: #0f3b3b;
+    --primary-light: #1a5c5c;
+    --accent: #d4a853;
+    --gray-100: #f7f9fc;
+    --gray-200: #e9edf4;
+    --gray-600: #5e6c84;
+    --gray-800: #1a2332;
+    --danger: #c0392b;
+    --success: #1e7a5e;
+    --radius: 12px;
+    --shadow: 0 20px 40px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .auth-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem 2rem;
+    animation: fadeSlide 0.5s ease;
+    text-align: center;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+  .logo span { color: var(--accent); }
+  .subtitle {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+  }
+  .email-display {
+    background: var(--gray-100);
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+    margin-bottom: 1.8rem;
+    color: var(--gray-800);
+    word-break: break-all;
+  }
+  .form-group {
+    margin-bottom: 1.5rem;
+    text-align: left;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 0.35rem;
+  }
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-align: center;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--gray-100);
+    color: var(--gray-800);
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(15, 59, 59, 0.1);
+    background: white;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+  .alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    font-weight: 500;
+  }
+  .alert-success {
+    background: #e6f7ed;
+    color: var(--success);
+    border: 1px solid #b8e6d0;
+  }
+  .alert-danger {
+    background: #fdecea;
+    color: var(--danger);
+    border: 1px solid #f5c6cb;
+  }
+  .resend-hint {
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+  }
+</style>
 
-<section class="section">
+<div class="auth-card">
+  <div class="logo">Nexa<span>Brokers</span></div>
+  <div class="subtitle">Enter your verification code</div>
 
-    <div class="form-wrapper">
+  <div id="message" class="alert" style="display: none;"></div>
 
-        <div class="card">
+  <div class="email-display" id="emailDisplay">Loading email...</div>
 
-            <div class="badge">
-                Account Security
-            </div>
-
-            <h1>
-                Verify your account
-            </h1>
-
-            <p class="form-subtitle">
-                Enter the six-digit verification code
-                generated for your account.
-            </p>
-
-            <div
-                id="message"
-                class="alert"
-                style="display: none;"
-            ></div>
-
-            <form id="verifyForm" novalidate>
-
-                <div class="form-group">
-
-                    <label for="email">
-                        Email address
-                    </label>
-
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        autocomplete="email"
-                        required
-                    >
-
-                </div>
-
-                <div class="form-group">
-
-                    <label for="code">
-                        Verification code
-                    </label>
-
-                    <input
-                        id="code"
-                        name="code"
-                        type="text"
-                        inputmode="numeric"
-                        maxlength="6"
-                        placeholder="000000"
-                        autocomplete="one-time-code"
-                        required
-                    >
-
-                </div>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary form-submit"
-                    id="submitButton"
-                >
-                    Verify Account
-                </button>
-
-            </form>
-
-            <p
-                style="
-                    text-align: center;
-                    margin-top: 22px;
-                    color: var(--muted);
-                "
-            >
-                Code expires after 10 minutes.
-            </p>
-
-            <p
-                style="
-                    text-align: center;
-                    margin-top: 10px;
-                "
-            >
-                <a
-                    href="/login-page"
-                    style="
-                        color: var(--primary);
-                        font-weight: 700;
-                    "
-                >
-                    Back to Sign In
-                </a>
-            </p>
-
-        </div>
-
+  <form id="verifyForm">
+    <div class="form-group">
+      <label for="code">6‑digit code</label>
+      <input id="code" name="code" type="text" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="000000" required autofocus>
     </div>
+    <button type="submit" class="btn-primary" id="verifyButton">Verify &amp; Login</button>
+  </form>
 
-</section>
-
+  <div class="resend-hint">
+    Didn't receive a code? <a href="/login-page" style="color: var(--primary); font-weight:600;">Go back to login</a>
+  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-
 <script>
-
-"use strict";
-
-const form =
-    document.getElementById("verifyForm");
-
-const emailInput =
-    document.getElementById("email");
-
-const codeInput =
-    document.getElementById("code");
-
-const message =
-    document.getElementById("message");
-
-const submitButton =
-    document.getElementById("submitButton");
-
-
-/*
- * Restore the email used during signup/login.
- */
-
-const savedEmail =
-    sessionStorage.getItem(
-        "verificationEmail"
-    );
-
-if (savedEmail) {
-
-    emailInput.value =
-        savedEmail;
-
-}
-
-
-/*
- * Only allow numbers in the
- * verification code field.
- */
-
-codeInput.addEventListener(
-    "input",
-    function () {
-
-        this.value =
-            this.value
-                .replace(/[^0-9]/g, "")
-                .slice(0, 6);
-
-    }
-);
-
-
-function showMessage(
-    text,
-    type
-) {
-
-    message.textContent =
-        text;
-
-    message.className =
-        "alert " + type;
-
-    message.style.display =
-        "block";
-
-}
-
-
-form.addEventListener(
-    "submit",
-    async function (event) {
-
-        event.preventDefault();
-
-
-        const email =
-            emailInput.value
-                .trim()
-                .toLowerCase();
-
-
-        const code =
-            codeInput.value
-                .replace(/\D/g, "")
-                .slice(0, 6);
-
-
-        message.style.display =
-            "none";
-
-
-        if (!email) {
-
-            showMessage(
-                "Please enter your email address.",
-                "alert-danger"
-            );
-
-            return;
-
-        }
-
-
-        if (
-            !/^[^\s@]+@[^\s@]+\.[^\s@]+$/
-                .test(email)
-        ) {
-
-            showMessage(
-                "Please enter a valid email address.",
-                "alert-danger"
-            );
-
-            return;
-
-        }
-
-
-        if (!/^\d{6}$/.test(code)) {
-
-            showMessage(
-                "Please enter the 6-digit verification code.",
-                "alert-danger"
-            );
-
-            return;
-
-        }
-
-
-        submitButton.disabled =
-            true;
-
-        submitButton.textContent =
-            "Verifying...";
-
-
-        try {
-
-            const response =
-                await fetch(
-                    "/verify-code",
-                    {
-
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        body: JSON.stringify({
-                            email: email,
-                            code: code
-                        })
-
-                    }
-                );
-
-
-            let data;
-
-            try {
-
-                data =
-                    await response.json();
-
-            } catch {
-
-                data = {};
-
-            }
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.error ||
-                    "Verification failed."
-                );
-
-            }
-
-
-            showMessage(
-                data.message ||
-                "Verification successful.",
-                "alert-success"
-            );
-
-
-            sessionStorage.removeItem(
-                "verificationEmail"
-            );
-
-            sessionStorage.removeItem(
-                "developmentCode"
-            );
-
-
-            setTimeout(
-                function () {
-
-                    window.location.href =
-                        "/dashboard-page";
-
-                },
-                900
-            );
-
-
-        } catch (error) {
-
-            showMessage(
-                error.message ||
-                "Verification failed. Please try again.",
-                "alert-danger"
-            );
-
-
-            submitButton.disabled =
-                false;
-
-            submitButton.textContent =
-                "Verify Account";
-
-        }
-
-    }
-);
-
+// Retrieve stored email
+const email = sessionStorage.getItem("verificationEmail");
+document.getElementById("emailDisplay").textContent = email || "unknown@email.com";
+
+const form = document.getElementById("verifyForm");
+const message = document.getElementById("message");
+const verifyButton = document.getElementById("verifyButton");
+
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const code = document.getElementById("code").value.trim();
+
+  if (!email) {
+    message.textContent = "No email found. Please sign up or login again.";
+    message.className = "alert alert-danger";
+    message.style.display = "block";
+    return;
+  }
+
+  message.style.display = "none";
+  verifyButton.disabled = true;
+  verifyButton.textContent = "Verifying...";
+
+  try {
+    const response = await fetch("/verify-code", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, code })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Verification failed.");
+
+    message.textContent = data.message || "Verified!";
+    message.className = "alert alert-success";
+    message.style.display = "block";
+
+    // Clear stored email after successful verification
+    sessionStorage.removeItem("verificationEmail");
+
+    setTimeout(() => {
+      window.location.href = "/dashboard-page";
+    }, 800);
+
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "alert alert-danger";
+    message.style.display = "block";
+    verifyButton.disabled = false;
+    verifyButton.textContent = "Verify & Login";
+  }
+});
 </script>
-
 {% endblock %}
