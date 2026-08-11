@@ -2,120 +2,28 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{% block title %}NexaBrokers{% endblock %}</title>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <!-- Premium font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <meta
-        name="description"
-        content="NexaBrokers — secure account and transaction management platform."
-    >
-
-    <link
-        rel="stylesheet"
-        href="{{ url_for('static', filename='style.css') }}"
-    >
-
-    <title>
-        {% block title %}NexaBrokers{% endblock %}
-    </title>
+    {% block head %}{% endblock %}
 </head>
-
 <body>
+    {% block content %}{% endblock %}
 
-    <!-- ================================
-         NAVIGATION
-         ================================ -->
+    <!-- Global CSRF helper – always available -->
+    <script>
+        function getCSRFToken() {
+            const meta = document.querySelector('meta[name="csrf-token"]');
+            return meta ? meta.getAttribute('content') : '';
+        }
+    </script>
 
-    <nav class="navbar">
-
-        <div class="nav-container">
-
-            <a href="/" class="logo">
-                Nexa<span>Brokers</span>
-            </a>
-
-            <div class="nav-links">
-
-                <a href="/">
-                    Home
-                </a>
-
-                {% if session.get("user_id") %}
-
-                    <a href="/dashboard-page">
-                        Dashboard
-                    </a>
-
-                    <a href="/logout">
-                        Logout
-                    </a>
-
-                {% else %}
-
-                    <a href="/login-page">
-                        Login
-                    </a>
-
-                    <a
-                        href="/signup-page"
-                        class="btn btn-primary"
-                    >
-                        Get Started
-                    </a>
-
-                {% endif %}
-
-            </div>
-
-        </div>
-
-    </nav>
-
-
-    <!-- ================================
-         MAIN CONTENT
-         ================================ -->
-
-    <main>
-
-        {% block content %}
-
-        {% endblock %}
-
-    </main>
-
-
-    <!-- ================================
-         FOOTER
-         ================================ -->
-
-    <footer class="footer">
-
-        <div class="container">
-
-            <p>
-                © 2026 NexaBrokers. All rights reserved.
-            </p>
-
-            <p>
-                Secure account and transaction management platform.
-            </p>
-
-        </div>
-
-    </footer>
-
-
-    <!-- ================================
-         JAVASCRIPT
-         ================================ -->
-
-    {% block scripts %}
-
-    {% endblock %}
-
+    {% block scripts %}{% endblock %}
 </body>
 </html>
