@@ -5,3 +5,5 @@ Werkzeug
 gunicorn
 resend 
 SQLAlchemy
+flask-wtf
+flask-limiter
