@@ -1,1285 +1,216 @@
 {% extends "base.html" %}
-
-{% block title %}
-Admin Dashboard — NexaBrokers
-{% endblock %}
-
+{% block title %}Admin Panel — NexaBrokers{% endblock %}
 {% block content %}
-
-<section class="dashboard">
-
-    <div class="container">
-
-        <!-- HEADER -->
-
-        <div class="dashboard-header">
-
-            <div>
-
-                <div class="badge">
-                    Administration
-                </div>
-
-                <h1>
-                    Admin Dashboard
-                </h1>
-
-                <p>
-                    Manage users, review transactions,
-                    and monitor platform activity.
-                </p>
-
-            </div>
-
-            <button
-                type="button"
-                class="btn btn-secondary"
-                id="logoutButton"
-            >
-                Sign Out
-            </button>
-
-        </div>
-
-
-        <!-- MESSAGE -->
-
-        <div
-            id="message"
-            class="alert"
-            style="display:none;"
-        ></div>
-
-
-        <!-- OVERVIEW -->
-
-        <div class="grid grid-3">
-
-            <div class="stat-card">
-
-                <div class="stat-label">
-                    Total Users
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="totalUsers"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-label">
-                    Active Users
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="activeUsers"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-label">
-                    Pending Transactions
-                </div>
-
-                <div
-                    class="stat-value"
-                    id="pendingTransactions"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-label">
-                    Approved Transactions
-                </div>
-
-                <div
-                    class="stat-value positive"
-                    id="approvedTransactions"
-                >
-                    0
-                </div>
-
-            </div>
-
-
-            <div class="stat-card">
-
-                <div class="stat-label">
-                    Rejected Transactions
-                </div>
-
-                <div
-                    class="stat-value negative"
-                    id="rejectedTransactions"
-                >
-                    0
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- TRANSACTIONS -->
-
-        <section class="section">
-
-            <div class="card">
-
-                <div class="dashboard-header">
-
-                    <div>
-
-                        <div class="badge">
-                            Transaction Management
-                        </div>
-
-                        <h2>
-                            Transaction Requests
-                        </h2>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="refreshTransactions"
-                    >
-                        Refresh
-                    </button>
-
-                </div>
-
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    User
-                                </th>
-
-                                <th>
-                                    Type
-                                </th>
-
-                                <th>
-                                    Amount
-                                </th>
-
-                                <th>
-                                    Currency
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Date
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="transactionTable">
-
-                            <tr>
-
-                                <td
-                                    colspan="7"
-                                    style="text-align:center;"
-                                >
-                                    Loading transactions...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- USERS -->
-
-        <section class="section">
-
-            <div class="card">
-
-                <div class="dashboard-header">
-
-                    <div>
-
-                        <div class="badge">
-                            User Management
-                        </div>
-
-                        <h2>
-                            Registered Users
-                        </h2>
-
-                    </div>
-
-                    <button
-                        type="button"
-                        class="btn btn-secondary"
-                        id="refreshUsers"
-                    >
-                        Refresh
-                    </button>
-
-                </div>
-
-
-                <div class="table-wrapper">
-
-                    <table>
-
-                        <thead>
-
-                            <tr>
-
-                                <th>
-                                    Username
-                                </th>
-
-                                <th>
-                                    Email
-                                </th>
-
-                                <th>
-                                    Balance
-                                </th>
-
-                                <th>
-                                    Verification
-                                </th>
-
-                                <th>
-                                    Status
-                                </th>
-
-                                <th>
-                                    Action
-                                </th>
-
-                            </tr>
-
-                        </thead>
-
-
-                        <tbody id="userTable">
-
-                            <tr>
-
-                                <td
-                                    colspan="6"
-                                    style="text-align:center;"
-                                >
-                                    Loading users...
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- BALANCE MANAGEMENT -->
-
-        <section class="section">
-
-            <div class="card">
-
-                <div class="badge">
-                    Balance Management
-                </div>
-
-                <h2>
-                    Adjust User Balance
-                </h2>
-
-                <p>
-                    Record an administrative balance adjustment
-                    with a required reason.
-                </p>
-
-
-                <form
-                    id="balanceForm"
-                    style="margin-top:20px;"
-                >
-
-                    <div class="grid grid-2">
-
-                        <div class="form-group">
-
-                            <label for="balanceUser">
-                                User ID
-                            </label>
-
-                            <input
-                                id="balanceUser"
-                                type="number"
-                                min="1"
-                                placeholder="User ID"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="balanceAmount">
-                                Amount
-                            </label>
-
-                            <input
-                                id="balanceAmount"
-                                type="number"
-                                min="0.01"
-                                step="0.01"
-                                placeholder="0.00"
-                                required
-                            >
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="balanceDirection">
-                                Direction
-                            </label>
-
-                            <select
-                                id="balanceDirection"
-                                required
-                            >
-
-                                <option value="add">
-                                    Add
-                                </option>
-
-                                <option value="remove">
-                                    Remove
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-                        <div class="form-group">
-
-                            <label for="balanceReason">
-                                Reason
-                            </label>
-
-                            <input
-                                id="balanceReason"
-                                type="text"
-                                maxlength="500"
-                                placeholder="Reason for adjustment"
-                                required
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <button
-                        type="submit"
-                        class="btn btn-primary"
-                    >
-                        Update Balance
-                    </button>
-
-                </form>
-
-            </div>
-
-        </section>
-
-    </div>
-
-</section>
-
+<style>
+  :root {
+    --primary: #0a2540; --primary-light: #1e3a5f; --accent: #d4a853;
+    --gray-100: #f4f6f9; --gray-200: #e2e6ed; --gray-600: #5f6b7a; --gray-800: #1a1f36;
+    --danger: #c0392b; --success: #0f7b4e; --warning: #e67e22;
+    --radius: 16px; --radius-input: 10px;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: #f4f6f9; display: flex; min-height: 100vh; }
+  .sidebar {
+    width: 260px; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%); color: white;
+    padding: 2rem 1.5rem; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; bottom: 0;
+    z-index: 10; box-shadow: 4px 0 20px rgba(0,0,0,0.05); transition: transform 0.3s;
+  }
+  .sidebar-logo { font-size: 1.5rem; font-weight: 700; margin-bottom: 2.5rem; }
+  .sidebar-logo span { color: var(--accent); }
+  .nav-menu { list-style: none; flex: 1; }
+  .nav-menu li { margin-bottom: 0.4rem; }
+  .nav-menu a { color: rgba(255,255,255,0.8); text-decoration: none; padding: 0.8rem 1rem; border-radius: 10px; display: block; font-weight: 500; cursor: pointer; }
+  .nav-menu a:hover, .nav-menu a.active { background: rgba(255,255,255,0.12); color: white; }
+  .sidebar-footer { margin-top: auto; font-size: 0.85rem; color: rgba(255,255,255,0.5); }
+  .hamburger { display: none; position: fixed; top: 1rem; left: 1rem; z-index: 20; background: var(--primary); color: white; border: none; padding: 0.5rem 0.8rem; border-radius: 8px; font-size: 1.5rem; cursor: pointer; }
+  .main-content { margin-left: 260px; flex: 1; padding: 2rem; transition: margin-left 0.3s; }
+  .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+  .page-title { font-size: 1.8rem; font-weight: 700; color: var(--gray-800); }
+  .admin-badge { background: white; border-radius: 40px; padding: 0.5rem 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.05); font-weight: 600; color: var(--primary); }
+  .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 2rem; border-bottom: 1px solid var(--gray-200); padding-bottom: 0.8rem; }
+  .tab-btn { padding: 0.7rem 1.6rem; border-radius: 30px; font-weight: 600; border: none; background: transparent; color: var(--gray-600); cursor: pointer; }
+  .tab-btn.active { background: var(--primary); color: white; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 1.2rem; margin-bottom: 2rem; }
+  .stat-card { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 8px 20px rgba(0,0,0,0.03); text-align: center; }
+  .stat-value { font-size: 2rem; font-weight: 700; color: var(--primary); }
+  .stat-label { font-size: 0.85rem; color: var(--gray-600); margin-top: 0.3rem; }
+  .data-section { background: white; border-radius: var(--radius); padding: 1.5rem; box-shadow: 0 8px 20px rgba(0,0,0,0.03); margin-bottom: 2rem; }
+  .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 1rem; color: var(--gray-800); }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 0.75rem; font-size: 0.85rem; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); background: var(--gray-100); }
+  td { padding: 0.75rem; font-size: 0.9rem; border-bottom: 1px solid var(--gray-100); color: var(--gray-800); }
+  .status-badge { display: inline-block; padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .status-approved { background: #e6f7ed; color: var(--success); }
+  .status-pending { background: #fff3e0; color: var(--warning); }
+  .status-rejected { background: #fdecea; color: var(--danger); }
+  .btn-sm { padding: 0.35rem 0.9rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; margin-right: 0.3rem; }
+  .btn-approve { background: var(--success); color: white; }
+  .btn-reject { background: var(--danger); color: white; }
+  .btn-adjust { background: var(--accent); color: var(--primary); }
+  .btn-toggle { background: var(--gray-200); color: var(--gray-800); }
+  .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(10,37,64,0.7); backdrop-filter: blur(4px); z-index:100; justify-content: center; align-items: center; }
+  .modal.active { display: flex; }
+  .modal-card { background: white; border-radius: var(--radius); padding: 2rem; width: 90%; max-width: 450px; box-shadow: 0 30px 50px rgba(0,0,0,0.2); }
+  @media (max-width: 768px) { .sidebar { transform: translateX(-100%); } .sidebar.open { transform: translateX(0); } .main-content { margin-left: 0; } .hamburger { display: block; } }
+</style>
+<button class="hamburger" id="menuToggle">☰</button>
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">Nexa<span>Brokers</span></div>
+  <ul class="nav-menu">
+    <li><a class="tab-link active" data-tab="overview">📊 Overview</a></li>
+    <li><a class="tab-link" data-tab="users">👥 Users</a></li>
+    <li><a class="tab-link" data-tab="transactions">💸 Transactions</a></li>
+    <li><a class="tab-link" data-tab="audit">📋 Audit Log</a></li>
+    <li><a href="/logout" onclick="event.preventDefault(); document.getElementById('logoutForm').submit();">Logout</a></li>
+  </ul>
+  <form id="logoutForm" action="/logout" method="POST" style="display:none;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"></form>
+  <div class="sidebar-footer">Admin Panel</div>
+</div>
+<div class="main-content">
+  <div class="top-bar"><h1 class="page-title">Admin Dashboard</h1><div class="admin-badge">🔒 Administrator</div></div>
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="overview">Overview</button>
+    <button class="tab-btn" data-tab="users">Users</button>
+    <button class="tab-btn" data-tab="transactions">Transactions</button>
+    <button class="tab-btn" data-tab="audit">Audit Log</button>
+  </div>
+  <div id="tab-overview" class="tab-content active"><div class="stats-grid" id="statsGrid"></div></div>
+  <div id="tab-users" class="tab-content"><div class="data-section"><h2 class="section-title">All Users</h2><div style="overflow-x:auto;"><table><thead><tr><th>Username</th><th>Email</th><th>Balance</th><th>Active</th><th>Verified</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table></div></div></div>
+  <div id="tab-transactions" class="tab-content"><div class="data-section"><h2 class="section-title">Pending Transactions</h2><div style="overflow-x:auto;"><table><thead><tr><th>User</th><th>Type</th><th>Amount</th><th>Currency</th><th>TXID</th><th>Status</th><th>Action</th></tr></thead><tbody id="transactionsTableBody"></tbody></table></div></div></div>
+  <div id="tab-audit" class="tab-content"><div class="data-section"><h2 class="section-title">Balance Adjustments</h2><div style="overflow-x:auto;"><table><thead><tr><th>Admin</th><th>User</th><th>Direction</th><th>Amount</th><th>Reason</th><th>Date</th></tr></thead><tbody id="auditTableBody"></tbody></table></div></div></div>
+</div>
+<div id="adjustModal" class="modal">
+  <div class="modal-card">
+    <h3>Adjust Balance</h3>
+    <div class="form-group"><label>User: <span id="adjustUsername"></span></label><input type="hidden" id="adjustUserId"></div>
+    <div class="form-group"><label for="adjustDirection">Direction</label><select id="adjustDirection"><option value="add">Add</option><option value="remove">Remove</option></select></div>
+    <div class="form-group"><label for="adjustAmount">Amount (USD)</label><input type="number" id="adjustAmount" step="0.01" min="0.01" placeholder="0.00" required></div>
+    <div class="form-group"><label for="adjustReason">Reason</label><textarea id="adjustReason" rows="2" required></textarea></div>
+    <button class="btn-sm btn-adjust" id="confirmAdjustBtn" style="width:100%; margin-top:0.5rem;">Confirm</button>
+    <button class="btn-sm btn-toggle" id="closeAdjustModal" style="width:100%; margin-top:0.5rem;">Cancel</button>
+  </div>
+</div>
 {% endblock %}
-
-
 {% block scripts %}
-
 <script>
-
-const message =
-    document.getElementById("message");
-
-
-function showMessage(text, success = false) {
-
-    message.textContent = text;
-
-    message.className =
-        success
-            ? "alert alert-success"
-            : "alert alert-danger";
-
-    message.style.display =
-        "block";
-
-}
-
-
-function escapeHtml(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-}
-
-
-function formatMoney(value) {
-
-    return new Intl.NumberFormat(
-        "en-US",
-        {
-            style: "currency",
-            currency: "USD"
-        }
-    ).format(Number(value || 0));
-
-}
-
-
-function formatDate(value) {
-
-    if (!value) {
-        return "—";
-    }
-
-    const date =
-        new Date(value);
-
-    if (Number.isNaN(date.getTime())) {
-        return "—";
-    }
-
-    return date.toLocaleString();
-
-}
-
-
-/* ================================
-   LOAD OVERVIEW
-   ================================ */
-
+function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
+// Mobile menu
+document.getElementById("menuToggle").addEventListener("click", () => document.getElementById("sidebar").classList.toggle("open"));
+// Tab switching
+document.querySelectorAll('.tab-btn, .tab-link').forEach(el => {
+  el.addEventListener('click', function(e) {
+    e.preventDefault(); const tab = this.dataset.tab;
+    document.querySelectorAll('.tab-btn, .tab-link').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll(`[data-tab="${tab}"]`).forEach(b => b.classList.add('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    document.getElementById(`tab-${tab}`).classList.add('active');
+    if (tab === 'overview') loadOverview();
+    else if (tab === 'users') loadUsers();
+    else if (tab === 'transactions') loadTransactions();
+    else if (tab === 'audit') loadAudit();
+  });
+});
 async function loadOverview() {
-
-    try {
-
-        const response =
-            await fetch(
-                "/admin/overview",
-                {
-                    credentials:
-                        "same-origin"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Unable to load overview."
-            );
-
-        }
-
-
-        document.getElementById(
-            "totalUsers"
-        ).textContent =
-            data.users;
-
-
-        document.getElementById(
-            "activeUsers"
-        ).textContent =
-            data.active_users;
-
-
-        document.getElementById(
-            "pendingTransactions"
-        ).textContent =
-            data.pending_transactions;
-
-
-        document.getElementById(
-            "approvedTransactions"
-        ).textContent =
-            data.approved_transactions;
-
-
-        document.getElementById(
-            "rejectedTransactions"
-        ).textContent =
-            data.rejected_transactions;
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message
-        );
-
-    }
-
+  const res = await fetch("/admin/overview", { headers: {"X-CSRFToken": getCSRFToken()} });
+  const data = await res.json();
+  document.getElementById("statsGrid").innerHTML = `
+    <div class="stat-card"><div class="stat-value">${data.users}</div><div class="stat-label">Users</div></div>
+    <div class="stat-card"><div class="stat-value">${data.active_users}</div><div class="stat-label">Active</div></div>
+    <div class="stat-card"><div class="stat-value">${data.pending_transactions}</div><div class="stat-label">Pending</div></div>
+    <div class="stat-card"><div class="stat-value">${data.approved_transactions}</div><div class="stat-label">Approved</div></div>
+    <div class="stat-card"><div class="stat-value">${data.rejected_transactions}</div><div class="stat-label">Rejected</div></div>`;
 }
-
-
-/* ================================
-   LOAD TRANSACTIONS
-   ================================ */
-
-async function loadTransactions() {
-
-    const table =
-        document.getElementById(
-            "transactionTable"
-        );
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/admin/transactions",
-                {
-                    credentials:
-                        "same-origin"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Unable to load transactions."
-            );
-
-        }
-
-
-        if (!data.length) {
-
-            table.innerHTML = `
-                <tr>
-                    <td
-                        colspan="7"
-                        style="text-align:center;"
-                    >
-                        No transactions found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-
-        }
-
-
-        table.innerHTML =
-            data.map(
-                function(transaction) {
-
-                    const pending =
-                        transaction.status ===
-                        "Pending";
-
-
-                    return `
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    transaction.username
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    transaction.type
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    transaction.amount
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    transaction.currency
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    transaction.status
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    formatDate(
-                                        transaction.created_at
-                                    )
-                                )}
-                            </td>
-
-                            <td>
-
-                                ${
-                                    pending
-                                    ? `
-                                        <button
-                                            class="btn btn-primary"
-                                            onclick="reviewTransaction(
-                                                ${transaction.id},
-                                                'approve'
-                                            )"
-                                        >
-                                            Approve
-                                        </button>
-
-                                        <button
-                                            class="btn btn-secondary"
-                                            onclick="reviewTransaction(
-                                                ${transaction.id},
-                                                'reject'
-                                            )"
-                                        >
-                                            Reject
-                                        </button>
-                                    `
-                                    : `
-                                        <span>
-                                            Reviewed
-                                        </span>
-                                    `
-                                }
-
-                            </td>
-
-                        </tr>
-                    `;
-
-                }
-            ).join("");
-
-
-    } catch (error) {
-
-        table.innerHTML = `
-            <tr>
-                <td
-                    colspan="7"
-                    style="text-align:center;"
-                >
-                    Unable to load transactions.
-                </td>
-            </tr>
-        `;
-
-        showMessage(
-            error.message
-        );
-
-    }
-
-}
-
-
-/* ================================
-   REVIEW TRANSACTION
-   ================================ */
-
-async function reviewTransaction(
-    transactionId,
-    action
-) {
-
-    let note =
-        "";
-
-
-    if (action === "reject") {
-
-        note =
-            window.prompt(
-                "Enter a reason for rejecting this transaction:"
-            );
-
-
-        if (note === null) {
-            return;
-        }
-
-    }
-
-
-    if (action === "approve") {
-
-        const confirmed =
-            window.confirm(
-                "Approve this transaction?"
-            );
-
-        if (!confirmed) {
-            return;
-        }
-
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/admin/transactions/${transactionId}/review`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    credentials:
-                        "same-origin",
-
-                    body: JSON.stringify({
-
-                        action:
-                            action,
-
-                        note:
-                            note
-
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Unable to review transaction."
-            );
-
-        }
-
-
-        showMessage(
-            data.message,
-            true
-        );
-
-
-        await loadOverview();
-
-        await loadTransactions();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message
-        );
-
-    }
-
-}
-
-
-/* ================================
-   LOAD USERS
-   ================================ */
-
 async function loadUsers() {
-
-    const table =
-        document.getElementById(
-            "userTable"
-        );
-
-
-    try {
-
-        const response =
-            await fetch(
-                "/admin/users",
-                {
-                    credentials:
-                        "same-origin"
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Unable to load users."
-            );
-
-        }
-
-
-        if (!data.length) {
-
-            table.innerHTML = `
-                <tr>
-                    <td
-                        colspan="6"
-                        style="text-align:center;"
-                    >
-                        No users found.
-                    </td>
-                </tr>
-            `;
-
-            return;
-
-        }
-
-
-        table.innerHTML =
-            data.map(
-                function(user) {
-
-                    return `
-                        <tr>
-
-                            <td>
-                                ${escapeHtml(
-                                    user.username
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    user.email
-                                )}
-                            </td>
-
-                            <td>
-                                ${escapeHtml(
-                                    formatMoney(
-                                        user.balance
-                                    )
-                                )}
-                            </td>
-
-                            <td>
-                                ${
-                                    user.is_verified
-                                        ? "Verified"
-                                        : "Not verified"
-                                }
-                            </td>
-
-                            <td>
-                                ${
-                                    user.is_active
-                                        ? "Active"
-                                        : "Disabled"
-                                }
-                            </td>
-
-                            <td>
-
-                                <button
-                                    class="btn btn-secondary"
-                                    onclick="toggleUserStatus(
-                                        ${user.id},
-                                        ${user.is_active}
-                                    )"
-                                >
-                                    ${
-                                        user.is_active
-                                            ? "Disable"
-                                            : "Activate"
-                                    }
-                                </button>
-
-                            </td>
-
-                        </tr>
-                    `;
-
-                }
-            ).join("");
-
-
-    } catch (error) {
-
-        table.innerHTML = `
-            <tr>
-                <td
-                    colspan="6"
-                    style="text-align:center;"
-                >
-                    Unable to load users.
-                </td>
-            </tr>
-        `;
-
-        showMessage(
-            error.message
-        );
-
-    }
-
+  const res = await fetch("/admin/users", { headers: {"X-CSRFToken": getCSRFToken()} });
+  const users = await res.json();
+  const tbody = document.getElementById("usersTableBody"); tbody.innerHTML = "";
+  users.forEach(u => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td><strong>${esc(u.username)}</strong></td><td>${esc(u.email)}</td><td>$${esc(u.balance)}</td>
+      <td>${u.is_active ? '✅' : '❌'}</td><td>${u.is_verified ? '✅' : '❌'}</td>
+      <td>
+        <button class="btn-sm btn-adjust" onclick="openAdjustModal(${u.id},'${esc(u.username)}','${esc(u.balance)}')">💰</button>
+        <button class="btn-sm btn-toggle" data-userid="${u.id}" data-active="${u.is_active}" onclick="toggleUserStatus(this)">${u.is_active ? 'Deactivate' : 'Activate'}</button>
+      </td>`;
+    tbody.appendChild(row);
+  });
 }
-
-
-/* ================================
-   USER STATUS
-   ================================ */
-
-async function toggleUserStatus(
-    userId,
-    currentStatus
-) {
-
-    const newStatus =
-        !currentStatus;
-
-
-    const confirmed =
-        window.confirm(
-            newStatus
-                ? "Activate this user?"
-                : "Disable this user?"
-        );
-
-
-    if (!confirmed) {
-        return;
-    }
-
-
-    try {
-
-        const response =
-            await fetch(
-                `/admin/users/${userId}/status`,
-                {
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    },
-
-                    credentials:
-                        "same-origin",
-
-                    body: JSON.stringify({
-                        active:
-                            newStatus
-                    })
-                }
-            );
-
-
-        const data =
-            await response.json();
-
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error ||
-                "Unable to update user status."
-            );
-
-        }
-
-
-        showMessage(
-            data.message,
-            true
-        );
-
-
-        await loadOverview();
-
-        await loadUsers();
-
-
-    } catch (error) {
-
-        showMessage(
-            error.message
-        );
-
-    }
-
+async function loadTransactions() {
+  const res = await fetch("/admin/transactions", { headers: {"X-CSRFToken": getCSRFToken()} });
+  const txs = await res.json();
+  const tbody = document.getElementById("transactionsTableBody"); tbody.innerHTML = "";
+  if (txs.length===0) { tbody.innerHTML='<tr><td colspan="7">No transactions.</td></tr>'; return; }
+  txs.forEach(tx => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td><strong>${esc(tx.username)}</strong></td><td>${esc(tx.type)}</td><td>$${esc(tx.amount)}</td><td>${esc(tx.currency)}</td>
+      <td>${esc(tx.txid||'—')}</td><td><span class="status-badge status-${tx.status.toLowerCase()}">${tx.status}</span></td>
+      <td>${tx.status==='Pending' ? `<button class="btn-sm btn-approve" onclick="reviewTx(${tx.id},'approve')">✓</button><button class="btn-sm btn-reject" onclick="reviewTx(${tx.id},'reject')">✗</button>` : '—'}</td>`;
+    tbody.appendChild(row);
+  });
 }
-
-
-/* ================================
-   BALANCE ADJUSTMENT
-   ================================ */
-
-document.getElementById(
-    "balanceForm"
-).addEventListener(
-    "submit",
-    async function(event) {
-
-        event.preventDefault();
-
-
-        const userId =
-            document.getElementById(
-                "balanceUser"
-            ).value;
-
-
-        const amount =
-            document.getElementById(
-                "balanceAmount"
-            ).value;
-
-
-        const direction =
-            document.getElementById(
-                "balanceDirection"
-            ).value;
-
-
-        const reason =
-            document.getElementById(
-                "balanceReason"
-            ).value.trim();
-
-
-        try {
-
-            const response =
-                await fetch(
-                    `/admin/users/${userId}/balance`,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "application/json"
-                        },
-
-                        credentials:
-                            "same-origin",
-
-                        body: JSON.stringify({
-
-                            amount:
-                                amount,
-
-                            direction:
-                                direction,
-
-                            reason:
-                                reason
-
-                        })
-                    }
-                );
-
-
-            const data =
-                await response.json();
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    data.error ||
-                    "Unable to update balance."
-                );
-
-            }
-
-
-            showMessage(
-                `Balance updated. New balance: ${data.new_balance}`,
-                true
-            );
-
-
-            this.reset();
-
-
-            await loadOverview();
-
-            await loadUsers();
-
-
-        } catch (error) {
-
-            showMessage(
-                error.message
-            );
-
-        }
-
-    }
-);
-
-
-/* ================================
-   REFRESH BUTTONS
-   ================================ */
-
-document.getElementById(
-    "refreshTransactions"
-).addEventListener(
-    "click",
-    async function() {
-
-        await loadOverview();
-
-        await loadTransactions();
-
-    }
-);
-
-
-document.getElementById(
-    "refreshUsers"
-).addEventListener(
-    "click",
-    async function() {
-
-        await loadOverview();
-
-        await loadUsers();
-
-    }
-);
-
-
-/* ================================
-   LOGOUT
-   ================================ */
-
-document.getElementById(
-    "logoutButton"
-).addEventListener(
-    "click",
-    async function() {
-
-        try {
-
-            await fetch(
-                "/logout",
-                {
-                    method: "POST",
-                    credentials:
-                        "same-origin"
-                }
-            );
-
-        } finally {
-
-            window.location.href =
-                "/admin-page";
-
-        }
-
-    }
-);
-
-
-/* ================================
-   INITIAL LOAD
-   ================================ */
-
+async function loadAudit() {
+  const res = await fetch("/admin/balance-adjustments", { headers: {"X-CSRFToken": getCSRFToken()} });
+  const adjs = await res.json();
+  const tbody = document.getElementById("auditTableBody"); tbody.innerHTML = "";
+  if (adjs.length===0) { tbody.innerHTML='<tr><td colspan="6">No adjustments.</td></tr>'; return; }
+  adjs.forEach(a => {
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${esc(a.admin_username)}</td><td>${esc(a.username)}</td><td>${a.direction}</td><td>$${a.amount}</td><td>${esc(a.reason)}</td><td>${new Date(a.created_at).toLocaleString()}</td>`;
+    tbody.appendChild(row);
+  });
+}
+async function toggleUserStatus(btn) {
+  const userId = btn.dataset.userid;
+  const currentlyActive = btn.dataset.active === 'true';
+  const desired = !currentlyActive;
+  if (!confirm(`Set user to ${desired?'active':'inactive'}?`)) return;
+  const res = await fetch(`/admin/users/${userId}/status`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json","X-CSRFToken":getCSRFToken()},
+    body: JSON.stringify({ active: desired })
+  });
+  const data = await res.json();
+  if (res.ok) { alert("Status updated."); loadUsers(); }
+  else alert("Error: " + data.error);
+}
+async function reviewTx(txId, action) {
+  if (!confirm(`Confirm ${action}?`)) return;
+  const res = await fetch(`/admin/transactions/${txId}/review`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json","X-CSRFToken":getCSRFToken()},
+    body: JSON.stringify({ action })
+  });
+  const data = await res.json();
+  if (res.ok) { alert(data.message); loadTransactions(); loadOverview(); }
+  else alert("Error: " + data.error);
+}
+function openAdjustModal(userId, username, balance) {
+  document.getElementById("adjustUserId").value = userId;
+  document.getElementById("adjustUsername").textContent = username + ` ($${balance})`;
+  document.getElementById("adjustAmount").value = "";
+  document.getElementById("adjustReason").value = "";
+  document.getElementById("adjustModal").classList.add("active");
+}
+document.getElementById("closeAdjustModal").addEventListener("click", ()=> document.getElementById("adjustModal").classList.remove("active"));
+document.getElementById("confirmAdjustBtn").addEventListener("click", async ()=>{
+  const userId = document.getElementById("adjustUserId").value;
+  const direction = document.getElementById("adjustDirection").value;
+  const amount = document.getElementById("adjustAmount").value;
+  const reason = document.getElementById("adjustReason").value.trim();
+  if (!amount || parseFloat(amount)<=0) return alert("Valid amount required.");
+  if (!reason) return alert("Reason required.");
+  const res = await fetch(`/admin/users/${userId}/balance`, {
+    method:"POST",
+    headers:{"Content-Type":"application/json","X-CSRFToken":getCSRFToken()},
+    body:JSON.stringify({ direction, amount:parseFloat(amount), reason })
+  });
+  const data = await res.json();
+  if (res.ok) { alert(`Balance updated. New: $${data.new_balance}`); document.getElementById("adjustModal").classList.remove("active"); loadUsers(); loadOverview(); }
+  else alert("Error: "+data.error);
+});
 loadOverview();
-
-loadTransactions();
-
-loadUsers();
-
 </script>
-
 {% endblock %}
