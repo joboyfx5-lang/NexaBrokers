@@ -24,12 +24,29 @@ from werkzeug.security import (
     check_password_hash,
 )
 
+# Security & rate limiting
+from flask_wtf.csrf import CSRFProtect
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
 
 # ============================================================
 # APPLICATION
 # ============================================================
 
 app = Flask(__name__)
+
+
+# ============================================================
+# SECURITY EXTENSIONS
+# ============================================================
+
+csrf = CSRFProtect(app)
+limiter = Limiter(
+    app,
+    key_func=get_remote_address,
+    default_limits=["200 per day", "50 per hour"],
+)
 
 
 # ============================================================
@@ -417,10 +434,10 @@ def issue_otp(user):
 
 
 def send_otp_email(to_email, code):
-    """Send a verification email, or skip entirely in development mode."""
+    """Send verification email – skipped in development mode."""
     if DEV_VERIFICATION_MODE:
         app.logger.info("DEV MODE: Email sending skipped – code %s", code)
-        return True   # pretend it was sent
+        return True
 
     sender = os.environ.get("MAIL_USERNAME")
     password = os.environ.get("MAIL_PASSWORD")
@@ -474,6 +491,20 @@ def send_otp_email(to_email, code):
         )
 
         return False
+
+
+def send_notification_email(to_email, subject, body):
+    """
+    Placeholder for transactional emails (welcome, transaction updates).
+    Currently logs the email; swap for Resend/SendGrid when API key is set.
+    """
+    app.logger.info(
+        "NOTIFICATION EMAIL to %s | Subject: %s | Body: %s",
+        to_email,
+        subject,
+        body,
+    )
+    return True
 
 
 def json_user(user):
@@ -580,14 +611,33 @@ def admin_page():
     )
 
 
+@app.route("/privacy")
+def privacy_page():
+
+    return render_template("privacy.html")
+
+
+@app.route("/terms")
+def terms_page():
+
+    return render_template("terms.html")
+
+
+@app.route("/forgot-password-page")
+def forgot_password_page():
+
+    return render_template("forgot_password.html")
+
+
 # ============================================================
-# SIGNUP
+# SIGNUP (rate‑limited)
 # ============================================================
 
 @app.route(
     "/signup",
     methods=["POST"],
 )
+@limiter.limit("5 per minute")
 def signup():
 
     data = request_data()
@@ -713,6 +763,9 @@ def signup():
             email,
         )
 
+    # Send welcome notification (log for now)
+    send_notification_email(email, "Welcome to NexaBrokers", "Your account has been created.")
+
 
     return jsonify(
         response
@@ -720,13 +773,14 @@ def signup():
 
 
 # ============================================================
-# LOGIN REQUEST
+# LOGIN REQUEST (rate‑limited)
 # ============================================================
 
 @app.route(
     "/login-request",
     methods=["POST"],
 )
+@limiter.limit("5 per minute")
 def login_request():
 
     data = request_data()
@@ -946,102 +1000,82 @@ def logout():
 
 
 # ============================================================
-# TEMPORARY RESET PASSWORD
+# DEMO LOGIN (one‑click account)
 # ============================================================
 
 @app.route(
-    "/temporary-reset-password",
+    "/demo-login",
     methods=["POST"],
 )
-def temporary_reset_password():
+@limiter.limit("3 per minute")
+def demo_login():
 
-    data = request_data()
-
-    reset_secret = str(
-        data.get("reset_secret")
-        or ""
-    )
-
-    expected_secret = os.environ.get(
-        "RESET_SECRET"
-    )
-
-
-    if not expected_secret:
-
-        return jsonify({
-            "error":
-                "RESET_SECRET is not configured."
-        }), 503
-
-
-    if not secrets.compare_digest(
-        reset_secret,
-        expected_secret,
-    ):
-
-        return jsonify({
-            "error":
-                "Invalid reset secret."
-        }), 403
-
-
-    username = (
-        str(
-            data.get("username")
-            or ""
-        )
-        .strip()
-    )
-
-    new_password = str(
-        data.get("new_password")
-        or ""
-    )
-
-
-    if not username:
-
-        return jsonify({
-            "error":
-                "Username is required."
-        }), 400
-
-
-    if len(new_password) < 8:
-
-        return jsonify({
-            "error":
-                "Password must contain at least 8 characters."
-        }), 400
-
-
-    user = User.query.filter_by(
-        username=username
+    # Check if demo user already exists
+    demo = User.query.filter_by(
+        email="demo@nexabrokers.com"
     ).first()
 
+    if not demo:
 
-    if not user:
-
-        return jsonify({
-            "error":
-                "User not found."
-        }), 404
-
-
-    user.password_hash = (
-        generate_password_hash(
-            new_password
+        demo = User(
+            username="demouser",
+            email="demo@nexabrokers.com",
+            password_hash=generate_password_hash(
+                "Demo@1234"
+            ),
+            is_verified=True,
+            is_active=True,
+            balance=Decimal("10000.00"),
         )
-    )
 
+        db.session.add(demo)
+        db.session.commit()
 
-    db.session.commit()
-
+    # Log in directly
+    session.clear()
+    session["user_id"] = demo.id
+    session.permanent = True
 
     return jsonify({
-        "message":
-            "Password reset successfully."
+        "message": "Demo account ready.",
+        "user": json_user(demo),
+    })
+
+
+# ============================================================
+# FORGOT PASSWORD (front‑end placeholder)
+# ============================================================
+
+@app.route(
+    "/forgot-password",
+    methods=["POST"],
+)
+@limiter.limit("3 per minute")
+def forgot_password():
+
+    data = request_data()
+    email = (
+        str(data.get("email") or "")
+        .strip()
+        .lower()
+    )
+
+    if not valid_email(email):
+        return jsonify({"error": "Valid email required."}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if user:
+        # In production, send reset link via Resend
+        send_notification_email(
+            email,
+            "Password Reset Request",
+            "A password reset link has been requested. (Placeholder for now)",
+        )
+        app.logger.info("Password reset requested for %s", email)
+
+    # Always return success to avoid email enumeration
+    return jsonify({
+        "message": "If that email exists, a reset link has been sent."
     })
 
 
@@ -1102,7 +1136,7 @@ def dashboard():
 
 
 # ============================================================
-# WALLET REQUEST
+# WALLET REQUEST (deposit / withdrawal)
 # ============================================================
 
 @app.route(
@@ -1110,6 +1144,7 @@ def dashboard():
     methods=["POST"],
 )
 @login_required
+@limiter.limit("10 per minute")
 def wallet_request():
 
     data = request_data()
@@ -1223,6 +1258,13 @@ def wallet_request():
     )
 
     db.session.commit()
+
+    # Notify user (log)
+    send_notification_email(
+        user.email,
+        f"{tx_type} Request Submitted",
+        f"Your {tx_type.lower()} request for ${amount} has been submitted and is pending review.",
+    )
 
 
     return jsonify({
@@ -1655,6 +1697,13 @@ def admin_balance_adjustment(
 
     db.session.commit()
 
+    # Notify user
+    send_notification_email(
+        user.email,
+        "Balance Updated",
+        f"Your balance has been {'credited' if direction == 'add' else 'debited'} by ${amount}. New balance: ${new_balance}",
+    )
+
 
     return jsonify({
 
@@ -1668,6 +1717,46 @@ def admin_balance_adjustment(
             str(new_balance),
 
     })
+
+
+# ============================================================
+# ADMIN BALANCE ADJUSTMENTS AUDIT LOG
+# ============================================================
+
+@app.route("/admin/balance-adjustments")
+@admin_required
+def admin_balance_adjustments():
+
+    adjustments = (
+        BalanceAdjustment.query
+        .order_by(
+            BalanceAdjustment.created_at.desc()
+        )
+        .limit(100)
+        .all()
+    )
+
+    return jsonify([
+
+        {
+            "id": adj.id,
+            "user_id": adj.user_id,
+            "username": User.query.get(adj.user_id).username,
+            "admin_id": adj.admin_id,
+            "admin_username": User.query.get(adj.admin_id).username,
+            "amount": str(adj.amount),
+            "direction": adj.direction,
+            "reason": adj.reason,
+            "created_at": (
+                adj.created_at.isoformat()
+                if adj.created_at
+                else None
+            ),
+        }
+
+        for adj in adjustments
+
+    ])
 
 
 # ============================================================
@@ -1852,6 +1941,14 @@ def review_transaction(
 
     db.session.commit()
 
+    # Notify user
+    send_notification_email(
+        user.email,
+        f"Transaction {tx.status}",
+        f"Your {tx.type.lower()} of ${tx.amount} has been {tx.status.lower()}."
+        + (f" Note: {note}" if note else ""),
+    )
+
 
     return jsonify({
 
@@ -1893,6 +1990,20 @@ def health():
     return jsonify(
         response
     )
+
+
+# ============================================================
+# ERROR HANDLERS
+# ============================================================
+
+@app.errorhandler(404)
+def not_found(e):
+    return render_template("404.html"), 404
+
+
+@app.errorhandler(500)
+def server_error(e):
+    return render_template("500.html"), 500
 
 
 # ============================================================
