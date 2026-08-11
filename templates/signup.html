@@ -27,281 +27,130 @@
     position: relative;
   }
   .bg-image {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1500&auto=format&fit=crop') center/cover no-repeat;
     z-index: 0;
   }
   .overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.35) 100%);
     z-index: 1;
   }
   .main-content {
-    position: relative;
-    z-index: 2;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 4rem 1rem 2rem 1rem;
+    position: relative; z-index: 2; flex: 1;
+    display: flex; align-items: center; justify-content: center;
+    width: 100%; padding: 4rem 1rem 2rem 1rem;
   }
   .signup-card {
-    width: 100%;
-    max-width: 520px;
-    background: rgba(255, 255, 255, 0.93);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    width: 100%; max-width: 520px;
+    background: rgba(255,255,255,0.93);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     border-radius: var(--radius-card);
     box-shadow: 0 40px 80px rgba(0,0,0,0.25);
     padding: 2.8rem 2.5rem;
     animation: fadeIn 0.6s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: flex; flex-direction: column; align-items: center;
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  .logo-block {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .logo-block svg {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 0.75rem;
-  }
-  .logo-text {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--primary);
-    line-height: 1;
-  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .logo-block { margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; }
+  .logo-block svg { width: 48px; height: 48px; margin-bottom: 0.75rem; }
+  .logo-text { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; color: var(--primary); line-height: 1; }
   .logo-text span { color: var(--accent); }
-  .subtitle {
-    color: var(--gray-600);
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-  .form-group {
-    width: 100%;
-    margin-bottom: 1.4rem;
-  }
-  label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gray-800);
-    margin-bottom: 0.4rem;
-  }
+  .subtitle { color: var(--gray-600); font-size: 1rem; margin-bottom: 2rem; text-align: center; }
+  .form-group { width: 100%; margin-bottom: 1.4rem; }
+  label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.4rem; }
   input {
-    width: 100%;
-    padding: 0.9rem 1.2rem;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-input);
-    font-size: 1rem;
-    background: white;
-    color: var(--gray-800);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
+    width: 100%; padding: 0.9rem 1.2rem; border: 1px solid var(--gray-200); border-radius: var(--radius-input);
+    font-size: 1rem; background: white; color: var(--gray-800); transition: border-color 0.2s, box-shadow 0.2s; outline: none;
   }
-  input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(10,37,64,0.12);
-  }
+  input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(10,37,64,0.12); }
   .btn-primary {
-    width: 100%;
-    padding: 0.95rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-input);
-    font-weight: 600;
-    font-size: 1.1rem;
-    letter-spacing: 0.3px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    margin-top: 0.6rem;
+    width: 100%; padding: 0.95rem; background: var(--primary); color: white; border: none; border-radius: var(--radius-input);
+    font-weight: 600; font-size: 1.1rem; letter-spacing: 0.3px; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.6rem;
   }
   .btn-primary:hover { background: var(--primary-light); }
   .btn-primary:active { transform: scale(0.98); }
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
   .alert {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-weight: 500;
+    width: 100%; padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.95rem; margin-bottom: 1.5rem;
+    text-align: center; font-weight: 500;
   }
-  .alert-success {
-    background: #e6f7ed;
-    color: var(--success);
-    border: 1px solid #b8e6d0;
-  }
-  .alert-danger {
-    background: #fdecea;
-    color: var(--danger);
-    border: 1px solid #f5c6cb;
-  }
-  .login-link {
-    margin-top: 1.8rem;
-    font-size: 0.95rem;
-    color: var(--gray-600);
-    text-align: center;
-  }
-  .login-link a {
-    color: var(--primary);
-    font-weight: 600;
-    text-decoration: none;
-  }
+  .alert-success { background: #e6f7ed; color: var(--success); border: 1px solid #b8e6d0; }
+  .alert-danger { background: #fdecea; color: var(--danger); border: 1px solid #f5c6cb; }
+  .login-link { margin-top: 1.8rem; font-size: 0.95rem; color: var(--gray-600); text-align: center; }
+  .login-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
   .login-link a:hover { text-decoration: underline; }
   .footer-bottom {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    text-align: center;
-    padding: 0.8rem 1rem;
-    color: rgba(255,255,255,0.7);
-    font-size: 0.8rem;
-    letter-spacing: 0.2px;
-    background: rgba(0,0,0,0.15);
+    position: relative; z-index: 2; width: 100%; text-align: center; padding: 0.8rem 1rem;
+    color: rgba(255,255,255,0.7); font-size: 0.8rem; letter-spacing: 0.2px; background: rgba(0,0,0,0.15);
   }
-  .footer-bottom a {
-    color: rgba(255,255,255,0.9);
-    text-decoration: none;
-    font-weight: 500;
-  }
+  .footer-bottom a { color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 500; }
   .footer-bottom a:hover { text-decoration: underline; }
   @media (max-width: 500px) {
-    .signup-card {
-      padding: 2.2rem 1.5rem;
-    }
-    .main-content {
-      padding-top: 3rem;
-    }
+    .signup-card { padding: 2.2rem 1.5rem; }
+    .main-content { padding-top: 3rem; }
   }
 </style>
-
 <div class="bg-image" aria-hidden="true"></div>
 <div class="overlay" aria-hidden="true"></div>
-
 <div class="main-content">
   <div class="signup-card">
     <div class="logo-block">
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="4" y="4" width="40" height="40" rx="10" fill="#0a2540" />
-        <path d="M14 34V14L26 30L34 14V34" stroke="#d4a853" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
+      <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="10" fill="#0a2540"/><path d="M14 34V14L26 30L34 14V34" stroke="#d4a853" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       <div class="logo-text">Nexa<span>Brokers</span></div>
     </div>
-
     <div class="subtitle">Create your secure broker account</div>
-
     <div id="message" class="alert" style="display: none;"></div>
-
     <form id="signupForm" style="width:100%;">
-      <div class="form-group">
-        <label for="username">Username</label>
-        <input id="username" name="username" type="text" placeholder="Choose a username" minlength="3" maxlength="80" autocomplete="username" required>
-      </div>
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required>
-      </div>
-      <div class="form-group">
-        <label for="confirmPassword">Confirm password</label>
-        <input id="confirmPassword" name="confirmPassword" type="password" placeholder="Enter password again" minlength="8" autocomplete="new-password" required>
-      </div>
+      <div class="form-group"><label for="username">Username</label><input id="username" name="username" type="text" placeholder="Choose a username" minlength="3" maxlength="80" autocomplete="username" required></div>
+      <div class="form-group"><label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required></div>
+      <div class="form-group"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="At least 8 characters" minlength="8" autocomplete="new-password" required></div>
+      <div class="form-group"><label for="confirmPassword">Confirm password</label><input id="confirmPassword" name="confirmPassword" type="password" placeholder="Enter password again" minlength="8" autocomplete="new-password" required></div>
       <button type="submit" class="btn-primary" id="submitButton">Create Account</button>
     </form>
-
-    <div class="login-link">
-      Already have an account? <a href="/login-page">Sign in</a>
-    </div>
+    <div class="login-link">Already have an account? <a href="/login-page">Sign in</a></div>
   </div>
 </div>
-
-<footer class="footer-bottom">
-  © 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp;
-  <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp;
-  <a href="/terms">Terms of Service</a>
-</footer>
+<footer class="footer-bottom">© 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp; <a href="/terms">Terms of Service</a></footer>
 {% endblock %}
-
 {% block scripts %}
 <script>
+function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 const form = document.getElementById("signupForm");
 const message = document.getElementById("message");
 const submitButton = document.getElementById("submitButton");
-
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
   const username = document.getElementById("username").value.trim();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
   const confirmPassword = document.getElementById("confirmPassword").value;
-
   message.style.display = "none";
   if (password !== confirmPassword) {
     message.textContent = "Passwords do not match.";
-    message.className = "alert alert-danger";
-    message.style.display = "block";
-    return;
+    message.className = "alert alert-danger"; message.style.display = "block"; return;
   }
   if (password.length < 8) {
     message.textContent = "Password must contain at least 8 characters.";
-    message.className = "alert alert-danger";
-    message.style.display = "block";
-    return;
+    message.className = "alert alert-danger"; message.style.display = "block"; return;
   }
-
-  submitButton.disabled = true;
-  submitButton.textContent = "Creating account...";
-
+  submitButton.disabled = true; submitButton.textContent = "Creating account...";
   try {
-    const response = await fetch("/signup", {
+    const res = await fetch("/signup", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
       body: JSON.stringify({ username, email, password })
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Unable to create account.");
-
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Unable to create account.");
     let successMsg = data.message || "Account created successfully.";
-    if (data.development_code) {
-      successMsg += " Your verification code: " + data.development_code;
-    }
-    message.textContent = successMsg;
-    message.className = "alert alert-success";
-    message.style.display = "block";
-
+    if (data.development_code) successMsg += " Your verification code: " + data.development_code;
+    message.textContent = successMsg; message.className = "alert alert-success"; message.style.display = "block";
     sessionStorage.setItem("verificationEmail", email);
-    const redirectDelay = data.development_code ? 15000 : 1200;
-    setTimeout(() => { window.location.href = "/verify-page"; }, redirectDelay);
+    setTimeout(() => { window.location.href = "/verify-page"; }, data.development_code ? 15000 : 1200);
   } catch (error) {
-    message.textContent = error.message;
-    message.className = "alert alert-danger";
-    message.style.display = "block";
-    submitButton.disabled = false;
-    submitButton.textContent = "Create Account";
+    message.textContent = error.message; message.className = "alert alert-danger"; message.style.display = "block";
+    submitButton.disabled = false; submitButton.textContent = "Create Account";
   }
 });
 </script>
