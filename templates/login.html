@@ -3,299 +3,119 @@
 {% block content %}
 <style>
   :root {
-    --primary: #0a2540;
-    --primary-light: #1e3a5f;
-    --accent: #d4a853;
-    --gray-100: #f4f6f9;
-    --gray-200: #e2e6ed;
-    --gray-600: #5f6b7a;
-    --gray-800: #1a1f36;
-    --danger: #c0392b;
-    --success: #0f7b4e;
-    --radius-card: 24px;
-    --radius-input: 12px;
+    --primary: #0a2540; --primary-light: #1e3a5f; --accent: #d4a853;
+    --gray-100: #f4f6f9; --gray-200: #e2e6ed; --gray-600: #5f6b7a; --gray-800: #1a1f36;
+    --danger: #c0392b; --success: #0f7b4e;
+    --radius-card: 24px; --radius-input: 12px;
     --font: 'Inter', system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: var(--font);
-    background: #0a2540;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;  /* pushes footer down, gives top space */
-    position: relative;
-  }
-
-  .bg-image {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1500&auto=format&fit=crop') center/cover no-repeat;
-    z-index: 0;
-  }
-  .overlay {
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.35) 100%);
-    z-index: 1;
-  }
-
-  /* Main area – push the card down a bit */
-  .main-content {
-    position: relative;
-    z-index: 2;
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 4rem 1rem 2rem 1rem;  /* more top padding = space above card */
-  }
-
+  body { font-family: var(--font); background: #0a2540; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+  .bg-image { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1500&auto=format&fit=crop') center/cover no-repeat; z-index: 0; }
+  .overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.35) 100%); z-index: 1; }
+  .main-content { position: relative; z-index: 2; flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; padding: 4rem 1rem 2rem 1rem; }
   .login-card {
-    width: 100%;
-    max-width: 480px;
-    background: rgba(255, 255, 255, 0.93);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-radius: var(--radius-card);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.25);
-    padding: 2.8rem 2.5rem;
-    animation: fadeIn 0.6s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 100%; max-width: 480px;
+    background: rgba(255,255,255,0.93); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-card); box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+    padding: 2.8rem 2.5rem; animation: fadeIn 0.6s ease;
+    display: flex; flex-direction: column; align-items: center;
   }
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  /* Logo – elegant SVG + text */
-  .logo-block {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .logo-block svg {
-    width: 48px;
-    height: 48px;
-    margin-bottom: 0.75rem;
-  }
-  .logo-text {
-    font-size: 2rem;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-    color: var(--primary);
-    line-height: 1;
-  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .logo-block { margin-bottom: 1.5rem; display: flex; flex-direction: column; align-items: center; }
+  .logo-block svg { width: 48px; height: 48px; margin-bottom: 0.75rem; }
+  .logo-text { font-size: 2rem; font-weight: 700; letter-spacing: -0.5px; color: var(--primary); line-height: 1; }
   .logo-text span { color: var(--accent); }
-
-  .subtitle {
-    color: var(--gray-600);
-    font-size: 1rem;
-    margin-bottom: 2rem;
-    text-align: center;
-  }
-
-  .form-group {
-    width: 100%;
-    margin-bottom: 1.4rem;
-  }
-  label {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--gray-800);
-    margin-bottom: 0.4rem;
-  }
-  input {
-    width: 100%;
-    padding: 0.9rem 1.2rem;
-    border: 1px solid var(--gray-200);
-    border-radius: var(--radius-input);
-    font-size: 1rem;
-    background: white;
-    color: var(--gray-800);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    outline: none;
-  }
-  input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(10,37,64,0.12);
-  }
-
-  .btn-primary {
-    width: 100%;
-    padding: 0.95rem;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: var(--radius-input);
-    font-weight: 600;
-    font-size: 1.1rem;
-    letter-spacing: 0.3px;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.1s;
-    margin-top: 0.6rem;
-  }
+  .subtitle { color: var(--gray-600); font-size: 1rem; margin-bottom: 2rem; text-align: center; }
+  .form-group { width: 100%; margin-bottom: 1.4rem; }
+  label { display: block; font-size: 0.9rem; font-weight: 600; color: var(--gray-800); margin-bottom: 0.4rem; }
+  input { width: 100%; padding: 0.9rem 1.2rem; border: 1px solid var(--gray-200); border-radius: var(--radius-input); font-size: 1rem; background: white; color: var(--gray-800); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+  input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(10,37,64,0.12); }
+  .btn-primary { width: 100%; padding: 0.95rem; background: var(--primary); color: white; border: none; border-radius: var(--radius-input); font-weight: 600; font-size: 1.1rem; letter-spacing: 0.3px; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 0.6rem; }
   .btn-primary:hover { background: var(--primary-light); }
   .btn-primary:active { transform: scale(0.98); }
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-
-  .alert {
-    width: 100%;
-    padding: 0.85rem 1rem;
-    border-radius: 10px;
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    font-weight: 500;
+  .btn-demo {
+    width: 100%; padding: 0.75rem; background: transparent; color: var(--primary);
+    border: 2px solid var(--primary); border-radius: var(--radius-input);
+    font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 0.8rem; transition: all 0.2s;
   }
-  .alert-success {
-    background: #e6f7ed;
-    color: var(--success);
-    border: 1px solid #b8e6d0;
-  }
-  .alert-danger {
-    background: #fdecea;
-    color: var(--danger);
-    border: 1px solid #f5c6cb;
-  }
-
-  .signup-link {
-    margin-top: 1.8rem;
-    font-size: 0.95rem;
-    color: var(--gray-600);
-    text-align: center;
-  }
-  .signup-link a {
-    color: var(--primary);
-    font-weight: 600;
-    text-decoration: none;
-  }
-  .signup-link a:hover { text-decoration: underline; }
-
-  .footer-bottom {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    text-align: center;
-    padding: 0.8rem 1rem;
-    color: rgba(255,255,255,0.7);
-    font-size: 0.8rem;
-    letter-spacing: 0.2px;
-    background: rgba(0,0,0,0.15);
-  }
-  .footer-bottom a {
-    color: rgba(255,255,255,0.9);
-    text-decoration: none;
-    font-weight: 500;
-  }
-  .footer-bottom a:hover { text-decoration: underline; }
-
-  @media (max-width: 500px) {
-    .login-card {
-      padding: 2.2rem 1.5rem;
-    }
-    .main-content {
-      padding-top: 3rem;
-    }
-  }
+  .btn-demo:hover { background: var(--primary); color: white; }
+  .alert { width: 100%; padding: 0.85rem 1rem; border-radius: 10px; font-size: 0.95rem; margin-bottom: 1.5rem; text-align: center; font-weight: 500; }
+  .alert-success { background: #e6f7ed; color: var(--success); border: 1px solid #b8e6d0; }
+  .alert-danger { background: #fdecea; color: var(--danger); border: 1px solid #f5c6cb; }
+  .signup-link { margin-top: 1.8rem; font-size: 0.95rem; color: var(--gray-600); text-align: center; }
+  .signup-link a { color: var(--primary); font-weight: 600; text-decoration: none; }
+  .forgot-link { font-size: 0.9rem; text-align: right; margin-bottom: 0.5rem; }
+  .forgot-link a { color: var(--primary); text-decoration: none; }
+  .footer-bottom { position: relative; z-index: 2; width: 100%; text-align: center; padding: 0.8rem 1rem; color: rgba(255,255,255,0.7); font-size: 0.8rem; letter-spacing: 0.2px; background: rgba(0,0,0,0.15); }
+  .footer-bottom a { color: rgba(255,255,255,0.9); text-decoration: none; font-weight: 500; }
+  @media (max-width: 500px) { .login-card { padding: 2.2rem 1.5rem; } .main-content { padding-top: 3rem; } }
 </style>
-
 <div class="bg-image" aria-hidden="true"></div>
 <div class="overlay" aria-hidden="true"></div>
-
 <div class="main-content">
   <div class="login-card">
-
-    <!-- Brand Logo -->
     <div class="logo-block">
-      <!-- Custom SVG: stylised "N" inside a geometric shield -->
-      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="4" y="4" width="40" height="40" rx="10" fill="#0a2540" />
-        <path d="M14 34V14L26 30L34 14V34" stroke="#d4a853" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-      </svg>
+      <svg viewBox="0 0 48 48" fill="none"><rect x="4" y="4" width="40" height="40" rx="10" fill="#0a2540"/><path d="M14 34V14L26 30L34 14V34" stroke="#d4a853" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>
       <div class="logo-text">Nexa<span>Brokers</span></div>
     </div>
-
     <div class="subtitle">Sign in to your trading dashboard</div>
-
     <div id="message" class="alert" style="display: none;"></div>
-
     <form id="loginForm" style="width:100%;">
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required>
-      </div>
+      <div class="form-group"><label for="email">Email address</label><input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required></div>
+      <div class="form-group"><label for="password">Password</label><input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required></div>
+      <div class="forgot-link"><a href="/forgot-password-page">Forgot password?</a></div>
       <button type="submit" class="btn-primary" id="loginButton">Sign In</button>
+      <button type="button" class="btn-demo" id="demoButton">Try Demo Account</button>
     </form>
-
-    <div class="signup-link">
-      Don't have an account? <a href="/signup-page">Create one</a>
-    </div>
+    <div class="signup-link">Don't have an account? <a href="/signup-page">Create one</a></div>
   </div>
 </div>
-
-<footer class="footer-bottom">
-  © 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp;
-  <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp;
-  <a href="/terms">Terms of Service</a>
-</footer>
+<footer class="footer-bottom">© 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp; <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp; <a href="/terms">Terms of Service</a></footer>
 {% endblock %}
-
 {% block scripts %}
 <script>
+function esc(str) { return String(str).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m]); }
 const form = document.getElementById("loginForm");
 const message = document.getElementById("message");
 const loginButton = document.getElementById("loginButton");
-
+const demoButton = document.getElementById("demoButton");
 form.addEventListener("submit", async function(e) {
   e.preventDefault();
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value;
-
   message.style.display = "none";
-  loginButton.disabled = true;
-  loginButton.textContent = "Signing in...";
-
+  loginButton.disabled = true; loginButton.textContent = "Signing in...";
   try {
-    const response = await fetch("/login-request", {
+    const res = await fetch("/login-request", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() },
       body: JSON.stringify({ email, password })
     });
-    const data = await response.json();
-    if (!response.ok) throw new Error(data.error || "Login failed.");
-
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Login failed.");
     let successMsg = data.message || "Verification code generated.";
-    if (data.development_code) {
-      successMsg += " Your verification code: " + data.development_code;
-    }
-    message.textContent = successMsg;
-    message.className = "alert alert-success";
-    message.style.display = "block";
-
+    if (data.development_code) successMsg += " Your verification code: " + data.development_code;
+    message.textContent = successMsg; message.className = "alert alert-success"; message.style.display = "block";
     sessionStorage.setItem("verificationEmail", email);
-    const redirectDelay = data.development_code ? 15000 : 1200;
-    setTimeout(() => { window.location.href = "/verify-page"; }, redirectDelay);
+    setTimeout(() => { window.location.href = "/verify-page"; }, data.development_code ? 15000 : 1200);
   } catch (error) {
-    message.textContent = error.message;
-    message.className = "alert alert-danger";
-    message.style.display = "block";
-    loginButton.disabled = false;
-    loginButton.textContent = "Sign In";
+    message.textContent = error.message; message.className = "alert alert-danger"; message.style.display = "block";
+    loginButton.disabled = false; loginButton.textContent = "Sign In";
   }
+});
+demoButton.addEventListener("click", async function() {
+  demoButton.disabled = true; demoButton.textContent = "Loading demo...";
+  try {
+    const res = await fetch("/demo-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-CSRFToken": getCSRFToken() }
+    });
+    if (res.ok) { window.location.href = "/dashboard-page"; }
+    else { alert("Demo unavailable right now."); }
+  } catch (e) { alert("Error loading demo."); }
+  demoButton.disabled = false; demoButton.textContent = "Try Demo Account";
 });
 </script>
 {% endblock %}
