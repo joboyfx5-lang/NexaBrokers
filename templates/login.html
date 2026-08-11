@@ -1,65 +1,204 @@
 {% extends "base.html" %}
 
-{% block title %}Sign In | NexaBrokers{% endblock %}
+{% block title %}Sign In — NexaBrokers{% endblock %}
 
 {% block content %}
+<style>
+  :root {
+    --primary: #0f3b3b;
+    --primary-light: #1a5c5c;
+    --accent: #d4a853;
+    --gray-100: #f7f9fc;
+    --gray-200: #e9edf4;
+    --gray-600: #5e6c84;
+    --gray-800: #1a2332;
+    --danger: #c0392b;
+    --success: #1e7a5e;
+    --radius: 12px;
+    --shadow: 0 20px 40px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .auth-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 450px;
+    padding: 2.5rem 2rem;
+    animation: fadeSlide 0.5s ease;
+  }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .logo {
+    font-size: 1.75rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+  .logo span { color: var(--accent); }
+  .subtitle {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    margin-bottom: 2rem;
+  }
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 0.35rem;
+  }
+  input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    background: var(--gray-100);
+    color: var(--gray-800);
+  }
+  input:focus {
+    outline: none;
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(15, 59, 59, 0.1);
+    background: white;
+  }
+  .btn-primary {
+    width: 100%;
+    padding: 0.85rem;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.3px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 0.5rem;
+  }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+  .alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    text-align: center;
+    font-weight: 500;
+  }
+  .alert-success {
+    background: #e6f7ed;
+    color: var(--success);
+    border: 1px solid #b8e6d0;
+  }
+  .alert-danger {
+    background: #fdecea;
+    color: var(--danger);
+    border: 1px solid #f5c6cb;
+  }
+  .footer-text {
+    text-align: center;
+    margin-top: 1.5rem;
+    font-size: 0.9rem;
+    color: var(--gray-600);
+  }
+  .footer-text a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .footer-text a:hover { text-decoration: underline; }
+</style>
 
-<div class="auth-container">
+<div class="auth-card">
+  <div class="logo">Nexa<span>Brokers</span></div>
+  <div class="subtitle">Sign in to your dashboard</div>
 
-    <div class="auth-card">
+  <div id="message" class="alert" style="display: none;"></div>
 
-        <h1>Sign In</h1>
-
-        <p class="auth-subtitle">
-            Welcome back to NexaBrokers.
-        </p>
-
-        <form method="POST" action="{{ url_for('login_request') }}">
-
-            <label for="email">
-                Email
-            </label>
-
-            <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="you@example.com"
-                required
-                autocomplete="email"
-            >
-
-            <label for="password">
-                Password
-            </label>
-
-            <input
-                type="password"
-                id="password"
-                name="password"
-                placeholder="Enter your password"
-                required
-                autocomplete="current-password"
-            >
-
-            <button
-                type="submit"
-                class="primary-btn"
-            >
-                Sign In
-            </button>
-
-        </form>
-
-        <p class="auth-footer">
-            Don't have an account?
-            <a href="{{ url_for('signup_page') }}">
-                Create an Account
-            </a>
-        </p>
-
+  <form id="loginForm">
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
     </div>
 
-</div>
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required>
+    </div>
 
+    <button type="submit" class="btn-primary" id="loginButton">Sign In</button>
+  </form>
+
+  <div class="footer-text">
+    Don't have an account? <a href="/signup-page">Create one</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const form = document.getElementById("loginForm");
+const message = document.getElementById("message");
+const loginButton = document.getElementById("loginButton");
+
+form.addEventListener("submit", async function(e) {
+  e.preventDefault();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  message.style.display = "none";
+  loginButton.disabled = true;
+  loginButton.textContent = "Signing in...";
+
+  try {
+    const response = await fetch("/login-request", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password })
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "Login failed.");
+
+    let successMsg = data.message || "Verification code generated.";
+    if (data.development_code) {
+      successMsg += " Your verification code: " + data.development_code;
+    }
+    message.textContent = successMsg;
+    message.className = "alert alert-success";
+    message.style.display = "block";
+
+    sessionStorage.setItem("verificationEmail", email);
+
+    const redirectDelay = data.development_code ? 15000 : 1200;
+    setTimeout(() => { window.location.href = "/verify-page"; }, redirectDelay);
+
+  } catch (error) {
+    message.textContent = error.message;
+    message.className = "alert alert-danger";
+    message.style.display = "block";
+    loginButton.disabled = false;
+    loginButton.textContent = "Sign In";
+  }
+});
+</script>
 {% endblock %}
