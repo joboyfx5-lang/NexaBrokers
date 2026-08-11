@@ -23,12 +23,10 @@
     height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: space-between;  /* pushes footer down, gives top space */
     position: relative;
   }
 
-  /* Full‑screen background */
   .bg-image {
     position: absolute;
     top: 0; left: 0;
@@ -46,7 +44,7 @@
     z-index: 1;
   }
 
-  /* Main content – takes all available vertical space, centers the card */
+  /* Main area – push the card down a bit */
   .main-content {
     position: relative;
     z-index: 2;
@@ -55,10 +53,9 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    padding: 2rem 1rem;
+    padding: 4rem 1rem 2rem 1rem;  /* more top padding = space above card */
   }
 
-  /* Glass card – intentionally spacious */
   .login-card {
     width: 100%;
     max-width: 480px;
@@ -69,21 +66,36 @@
     box-shadow: 0 40px 80px rgba(0,0,0,0.25);
     padding: 2.8rem 2.5rem;
     animation: fadeIn 0.6s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .logo {
+  /* Logo – elegant SVG + text */
+  .logo-block {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .logo-block svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 0.75rem;
+  }
+  .logo-text {
     font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.5px;
     color: var(--primary);
-    margin-bottom: 0.25rem;
-    text-align: center;
+    line-height: 1;
   }
-  .logo span { color: var(--accent); }
+  .logo-text span { color: var(--accent); }
+
   .subtitle {
     color: var(--gray-600);
     font-size: 1rem;
@@ -92,6 +104,7 @@
   }
 
   .form-group {
+    width: 100%;
     margin-bottom: 1.4rem;
   }
   label {
@@ -136,6 +149,7 @@
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
 
   .alert {
+    width: 100%;
     padding: 0.85rem 1rem;
     border-radius: 10px;
     font-size: 0.95rem;
@@ -167,7 +181,6 @@
   }
   .signup-link a:hover { text-decoration: underline; }
 
-  /* Footer – sits at the bottom, outside the card */
   .footer-bottom {
     position: relative;
     z-index: 2;
@@ -190,6 +203,9 @@
     .login-card {
       padding: 2.2rem 1.5rem;
     }
+    .main-content {
+      padding-top: 3rem;
+    }
   }
 </style>
 
@@ -198,12 +214,22 @@
 
 <div class="main-content">
   <div class="login-card">
-    <div class="logo">Nexa<span>Brokers</span></div>
+
+    <!-- Brand Logo -->
+    <div class="logo-block">
+      <!-- Custom SVG: stylised "N" inside a geometric shield -->
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="40" height="40" rx="10" fill="#0a2540" />
+        <path d="M14 34V14L26 30L34 14V34" stroke="#d4a853" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="logo-text">Nexa<span>Brokers</span></div>
+    </div>
+
     <div class="subtitle">Sign in to your trading dashboard</div>
 
     <div id="message" class="alert" style="display: none;"></div>
 
-    <form id="loginForm">
+    <form id="loginForm" style="width:100%;">
       <div class="form-group">
         <label for="email">Email address</label>
         <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
