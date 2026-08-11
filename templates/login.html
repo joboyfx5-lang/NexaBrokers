@@ -12,131 +12,123 @@
     --gray-800: #1a1f36;
     --danger: #c0392b;
     --success: #0f7b4e;
-    --radius: 16px;
-    --shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+    --radius-card: 20px;
+    --radius-input: 10px;
     --font: 'Inter', system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: var(--font);
-    background: #fff;
-    min-height: 100vh;
+    background: #0a2540; /* fallback */
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  .split-container {
-    display: flex;
-    width: 100%;
-    max-width: 1100px;
-    min-height: 650px;
-    border-radius: var(--radius);
-    overflow: hidden;
-    box-shadow: var(--shadow);
-    background: white;
-    margin: 1rem;
-  }
-  .image-side {
-    flex: 1;
-    background: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&auto=format&fit=crop') center/cover no-repeat;
     position: relative;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    padding: 2.5rem;
-    color: white;
-    min-height: 300px;
   }
-  .image-side::after {
-    content: '';
+  /* Full‑screen background image */
+  .bg-image {
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(0deg, rgba(10,37,64,0.85) 0%, rgba(10,37,64,0.25) 100%);
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1500&auto=format&fit=crop') center/cover no-repeat;
+    z-index: 0;
   }
-  .image-side-content {
-    position: relative;
+  /* Dark overlay for text readability */
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.4) 100%);
     z-index: 1;
   }
-  .image-side h2 {
-    font-size: 2.2rem;
-    font-weight: 700;
-    line-height: 1.2;
-    margin-bottom: 0.5rem;
-  }
-  .image-side p {
-    font-size: 1rem;
-    opacity: 0.9;
-    max-width: 300px;
-  }
-  .form-side {
-    flex: 1;
-    padding: 2.5rem 2.5rem;
+  /* Glass-morphism card – spacious and centered */
+  .login-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: var(--radius-card);
+    box-shadow: 0 35px 70px rgba(0,0,0,0.25);
+    padding: 3rem 2.5rem;
+    margin: 1.5rem;
+    animation: fadeIn 0.6s ease;
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    background: white;
+    align-items: center;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
   }
   .logo {
-    font-size: 1.6rem;
+    font-size: 2.2rem;
     font-weight: 700;
     letter-spacing: -0.5px;
     color: var(--primary);
-    margin-bottom: 0.2rem;
+    margin-bottom: 0.4rem;
   }
   .logo span { color: var(--accent); }
   .subtitle {
     color: var(--gray-600);
-    font-size: 0.95rem;
-    margin-bottom: 2rem;
+    font-size: 1rem;
+    margin-bottom: 2.2rem;
+    text-align: center;
   }
   .form-group {
-    margin-bottom: 1.2rem;
+    width: 100%;
+    margin-bottom: 1.4rem;
   }
   label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
   }
   input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.9rem 1.2rem;
     border: 1px solid var(--gray-200);
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background: var(--gray-100);
+    border-radius: var(--radius-input);
+    font-size: 1rem;
+    background: white;
     color: var(--gray-800);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
   }
   input:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(10,37,64,0.1);
-    background: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(10,37,64,0.12);
   }
   .btn-primary {
     width: 100%;
-    padding: 0.85rem;
+    padding: 0.95rem;
     background: var(--primary);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-input);
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.1rem;
     letter-spacing: 0.3px;
     cursor: pointer;
     transition: background 0.2s, transform 0.1s;
-    margin-top: 0.5rem;
+    margin-top: 0.6rem;
   }
   .btn-primary:hover { background: var(--primary-light); }
   .btn-primary:active { transform: scale(0.98); }
-  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+  .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
   .alert {
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    margin-bottom: 1.25rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
     text-align: center;
     font-weight: 500;
   }
@@ -151,10 +143,10 @@
     border: 1px solid #f5c6cb;
   }
   .footer-text {
-    text-align: center;
-    margin-top: 1.5rem;
-    font-size: 0.9rem;
+    margin-top: 2rem;
+    font-size: 0.95rem;
     color: var(--gray-600);
+    text-align: center;
   }
   .footer-text a {
     color: var(--primary);
@@ -163,50 +155,40 @@
   }
   .footer-text a:hover { text-decoration: underline; }
 
-  @media (max-width: 768px) {
-    .split-container {
-      flex-direction: column;
-      min-height: auto;
-      margin: 0;
-      border-radius: 0;
-      box-shadow: none;
+  /* On small screens, reduce padding slightly */
+  @media (max-width: 500px) {
+    .login-card {
+      padding: 2.5rem 1.5rem;
+      margin: 0.8rem;
     }
-    .image-side {
-      min-height: 220px;
-      padding: 2rem;
-    }
-    .image-side h2 { font-size: 1.6rem; }
-    .form-side { padding: 2rem 1.5rem; }
   }
 </style>
 
-<div class="split-container">
-  <div class="image-side">
-    <div class="image-side-content">
-      <h2>Welcome back</h2>
-      <p>Access your trading dashboard securely.</p>
-    </div>
-  </div>
-  <div class="form-side">
-    <div class="logo">Nexa<span>Brokers</span></div>
-    <div class="subtitle">Sign in to your account</div>
+<div class="bg-image" aria-hidden="true"></div>
+<div class="overlay" aria-hidden="true"></div>
 
-    <div id="message" class="alert" style="display: none;"></div>
+<div class="login-card">
+  <div class="logo">Nexa<span>Brokers</span></div>
+  <div class="subtitle">Sign in to your trading dashboard</div>
 
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="email">Email address</label>
-        <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
-      </div>
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required>
-      </div>
-      <button type="submit" class="btn-primary" id="loginButton">Sign In</button>
-    </form>
-    <div class="footer-text">
-      Don't have an account? <a href="/signup-page">Create one</a>
+  <div id="message" class="alert" style="display: none;"></div>
+
+  <form id="loginForm" style="width:100%;">
+    <div class="form-group">
+      <label for="email">Email address</label>
+      <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
     </div>
+
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required>
+    </div>
+
+    <button type="submit" class="btn-primary" id="loginButton">Sign In</button>
+  </form>
+
+  <div class="footer-text">
+    Don't have an account? <a href="/signup-page">Create one</a>
   </div>
 </div>
 {% endblock %}
