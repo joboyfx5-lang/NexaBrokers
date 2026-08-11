@@ -12,45 +12,88 @@
     --gray-800: #1a1f36;
     --danger: #c0392b;
     --success: #0f7b4e;
-    --radius: 16px;
-    --shadow: 0 25px 50px -12px rgba(0,0,0,0.15);
+    --radius-card: 24px;
+    --radius-input: 12px;
     --font: 'Inter', system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: var(--font);
-    background: linear-gradient(135deg, #f4f6f9 0%, #e9edf2 100%);
-    min-height: 100vh;
+    background: #0a2540;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .bg-image {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1500&auto=format&fit=crop') center/cover no-repeat;
+    z-index: 0;
+  }
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.35) 100%);
+    z-index: 1;
+  }
+  .main-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 1rem;
+    width: 100%;
+    padding: 4rem 1rem 2rem 1rem;
   }
   .verify-card {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
     width: 100%;
     max-width: 440px;
-    padding: 2.5rem 2rem;
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-card);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+    padding: 2.8rem 2.5rem;
+    animation: fadeIn 0.6s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    animation: fadeSlide 0.4s ease;
   }
-  @keyframes fadeSlide {
-    from { opacity: 0; transform: translateY(12px); }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }
-  .logo {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary);
-    margin-bottom: 0.25rem;
+  .logo-block {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
-  .logo span { color: var(--accent); }
+  .logo-block svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 0.75rem;
+  }
+  .logo-text {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .logo-text span { color: var(--accent); }
   .subtitle {
     color: var(--gray-600);
-    font-size: 0.95rem;
-    margin-bottom: 1.8rem;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
   }
   .email-badge {
     background: var(--gray-100);
@@ -63,54 +106,58 @@
     font-size: 0.95rem;
   }
   .form-group {
+    width: 100%;
     margin-bottom: 1.5rem;
     text-align: left;
   }
   label {
     display: block;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     font-weight: 600;
     color: var(--gray-800);
-    margin-bottom: 0.35rem;
+    margin-bottom: 0.4rem;
   }
   input {
     width: 100%;
-    padding: 0.75rem 1rem;
+    padding: 0.9rem 1.2rem;
     border: 1px solid var(--gray-200);
-    border-radius: 8px;
+    border-radius: var(--radius-input);
     font-size: 1.2rem;
     letter-spacing: 3px;
     text-align: center;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background: var(--gray-100);
+    background: white;
     color: var(--gray-800);
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
   }
   input:focus {
-    outline: none;
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(10,37,64,0.1);
-    background: white;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(10,37,64,0.12);
   }
   .btn-primary {
     width: 100%;
-    padding: 0.85rem;
+    padding: 0.95rem;
     background: var(--primary);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-input);
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 1.1rem;
     letter-spacing: 0.3px;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: background 0.2s, transform 0.1s;
+    margin-top: 0.6rem;
   }
   .btn-primary:hover { background: var(--primary-light); }
+  .btn-primary:active { transform: scale(0.98); }
   .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
   .alert {
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    margin-bottom: 1.25rem;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
     font-weight: 500;
   }
   .alert-success {
@@ -123,38 +170,82 @@
     color: var(--danger);
     border: 1px solid #f5c6cb;
   }
-  .footer-text {
+  .back-link {
     margin-top: 1.8rem;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: var(--gray-600);
   }
-  .footer-text a {
+  .back-link a {
     color: var(--primary);
     font-weight: 600;
     text-decoration: none;
   }
-  .footer-text a:hover { text-decoration: underline; }
+  .back-link a:hover { text-decoration: underline; }
+  .footer-bottom {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem 1rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.8rem;
+    letter-spacing: 0.2px;
+    background: rgba(0,0,0,0.15);
+  }
+  .footer-bottom a {
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .footer-bottom a:hover { text-decoration: underline; }
+  @media (max-width: 500px) {
+    .verify-card {
+      padding: 2.2rem 1.5rem;
+    }
+    .main-content {
+      padding-top: 3rem;
+    }
+  }
 </style>
 
-<div class="verify-card">
-  <div class="logo">Nexa<span>Brokers</span></div>
-  <div class="subtitle">Secure your account</div>
-  <div class="email-badge" id="emailDisplay">Loading email...</div>
+<div class="bg-image" aria-hidden="true"></div>
+<div class="overlay" aria-hidden="true"></div>
 
-  <div id="message" class="alert" style="display: none;"></div>
-
-  <form id="verifyForm">
-    <div class="form-group">
-      <label for="code">Verification code</label>
-      <input id="code" name="code" type="text" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="000000" required autofocus>
+<div class="main-content">
+  <div class="verify-card">
+    <div class="logo-block">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="40" height="40" rx="10" fill="#0a2540" />
+        <path d="M14 34V14L26 30L34 14V34" stroke="#d4a853" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="logo-text">Nexa<span>Brokers</span></div>
     </div>
-    <button type="submit" class="btn-primary" id="verifyButton">Verify &amp; Login</button>
-  </form>
 
-  <div class="footer-text">
-    Didn't receive it? <a href="/login-page">Back to login</a>
+    <div class="subtitle">Enter your verification code</div>
+
+    <div class="email-badge" id="emailDisplay">Loading email...</div>
+
+    <div id="message" class="alert" style="display: none;"></div>
+
+    <form id="verifyForm" style="width:100%;">
+      <div class="form-group">
+        <label for="code">6‑digit code</label>
+        <input id="code" name="code" type="text" inputmode="numeric" pattern="\d{6}" maxlength="6" placeholder="000000" required autofocus>
+      </div>
+      <button type="submit" class="btn-primary" id="verifyButton">Verify &amp; Login</button>
+    </form>
+
+    <div class="back-link">
+      Didn't receive it? <a href="/login-page">Back to login</a>
+    </div>
   </div>
 </div>
+
+<footer class="footer-bottom">
+  © 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp;
+  <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp;
+  <a href="/terms">Terms of Service</a>
+</footer>
 {% endblock %}
 
 {% block scripts %}
