@@ -12,21 +12,23 @@
     --gray-800: #1a1f36;
     --danger: #c0392b;
     --success: #0f7b4e;
-    --radius-card: 20px;
-    --radius-input: 10px;
+    --radius-card: 24px;
+    --radius-input: 12px;
     --font: 'Inter', system-ui, -apple-system, sans-serif;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: var(--font);
-    background: #0a2540; /* fallback */
+    background: #0a2540;
     height: 100vh;
     display: flex;
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
+    align-items: center;
     position: relative;
   }
-  /* Full‑screen background image */
+
+  /* Full‑screen background */
   .bg-image {
     position: absolute;
     top: 0; left: 0;
@@ -35,53 +37,61 @@
     background: url('https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1500&auto=format&fit=crop') center/cover no-repeat;
     z-index: 0;
   }
-  /* Dark overlay for text readability */
   .overlay {
     position: absolute;
     top: 0; left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.4) 100%);
+    background: linear-gradient(135deg, rgba(10,37,64,0.82) 0%, rgba(10,37,64,0.35) 100%);
     z-index: 1;
   }
-  /* Glass-morphism card – spacious and centered */
-  .login-card {
+
+  /* Main content – takes all available vertical space, centers the card */
+  .main-content {
     position: relative;
     z-index: 2;
-    width: 100%;
-    max-width: 520px;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-radius: var(--radius-card);
-    box-shadow: 0 35px 70px rgba(0,0,0,0.25);
-    padding: 3rem 2.5rem;
-    margin: 1.5rem;
-    animation: fadeIn 0.6s ease;
+    flex: 1;
     display: flex;
-    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 2rem 1rem;
+  }
+
+  /* Glass card – intentionally spacious */
+  .login-card {
+    width: 100%;
+    max-width: 480px;
+    background: rgba(255, 255, 255, 0.93);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: var(--radius-card);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.25);
+    padding: 2.8rem 2.5rem;
+    animation: fadeIn 0.6s ease;
   }
   @keyframes fadeIn {
     from { opacity: 0; transform: translateY(24px); }
     to { opacity: 1; transform: translateY(0); }
   }
+
   .logo {
-    font-size: 2.2rem;
+    font-size: 2rem;
     font-weight: 700;
     letter-spacing: -0.5px;
     color: var(--primary);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.25rem;
+    text-align: center;
   }
   .logo span { color: var(--accent); }
   .subtitle {
     color: var(--gray-600);
     font-size: 1rem;
-    margin-bottom: 2.2rem;
+    margin-bottom: 2rem;
     text-align: center;
   }
+
   .form-group {
-    width: 100%;
     margin-bottom: 1.4rem;
   }
   label {
@@ -106,6 +116,7 @@
     border-color: var(--primary);
     box-shadow: 0 0 0 4px rgba(10,37,64,0.12);
   }
+
   .btn-primary {
     width: 100%;
     padding: 0.95rem;
@@ -122,9 +133,9 @@
   }
   .btn-primary:hover { background: var(--primary-light); }
   .btn-primary:active { transform: scale(0.98); }
-  .btn-primary:disabled { opacity: 0.65; cursor: not-allowed; }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
   .alert {
-    width: 100%;
     padding: 0.85rem 1rem;
     border-radius: 10px;
     font-size: 0.95rem;
@@ -142,24 +153,42 @@
     color: var(--danger);
     border: 1px solid #f5c6cb;
   }
-  .footer-text {
-    margin-top: 2rem;
+
+  .signup-link {
+    margin-top: 1.8rem;
     font-size: 0.95rem;
     color: var(--gray-600);
     text-align: center;
   }
-  .footer-text a {
+  .signup-link a {
     color: var(--primary);
     font-weight: 600;
     text-decoration: none;
   }
-  .footer-text a:hover { text-decoration: underline; }
+  .signup-link a:hover { text-decoration: underline; }
 
-  /* On small screens, reduce padding slightly */
+  /* Footer – sits at the bottom, outside the card */
+  .footer-bottom {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    text-align: center;
+    padding: 0.8rem 1rem;
+    color: rgba(255,255,255,0.7);
+    font-size: 0.8rem;
+    letter-spacing: 0.2px;
+    background: rgba(0,0,0,0.15);
+  }
+  .footer-bottom a {
+    color: rgba(255,255,255,0.9);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .footer-bottom a:hover { text-decoration: underline; }
+
   @media (max-width: 500px) {
     .login-card {
-      padding: 2.5rem 1.5rem;
-      margin: 0.8rem;
+      padding: 2.2rem 1.5rem;
     }
   }
 </style>
@@ -167,30 +196,36 @@
 <div class="bg-image" aria-hidden="true"></div>
 <div class="overlay" aria-hidden="true"></div>
 
-<div class="login-card">
-  <div class="logo">Nexa<span>Brokers</span></div>
-  <div class="subtitle">Sign in to your trading dashboard</div>
+<div class="main-content">
+  <div class="login-card">
+    <div class="logo">Nexa<span>Brokers</span></div>
+    <div class="subtitle">Sign in to your trading dashboard</div>
 
-  <div id="message" class="alert" style="display: none;"></div>
+    <div id="message" class="alert" style="display: none;"></div>
 
-  <form id="loginForm" style="width:100%;">
-    <div class="form-group">
-      <label for="email">Email address</label>
-      <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input id="email" name="email" type="email" placeholder="you@example.com" maxlength="255" autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn-primary" id="loginButton">Sign In</button>
+    </form>
+
+    <div class="signup-link">
+      Don't have an account? <a href="/signup-page">Create one</a>
     </div>
-
-    <div class="form-group">
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" placeholder="Your password" minlength="8" autocomplete="current-password" required>
-    </div>
-
-    <button type="submit" class="btn-primary" id="loginButton">Sign In</button>
-  </form>
-
-  <div class="footer-text">
-    Don't have an account? <a href="/signup-page">Create one</a>
   </div>
 </div>
+
+<footer class="footer-bottom">
+  © 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp;
+  <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp;
+  <a href="/terms">Terms of Service</a>
+</footer>
 {% endblock %}
 
 {% block scripts %}
