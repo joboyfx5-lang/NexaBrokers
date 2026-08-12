@@ -1,229 +1,169 @@
 {% extends "base.html" %}
-
-{% block title %}
-NexaBrokers — Secure Financial Management
-{% endblock %}
-
+{% block title %}NexaBrokers — Institutional Trading{% endblock %}
 {% block content %}
+<style>
+  :root {
+    --primary: #0a2540;
+    --primary-light: #1e3a5f;
+    --accent: #d4a853;
+    --gray-100: #f4f6f9;
+    --gray-200: #e2e6ed;
+    --gray-600: #5f6b7a;
+    --gray-800: #1a1f36;
+    --radius-card: 24px;
+    --radius-input: 12px;
+    --font: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: #0a2540;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .bg-image {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=1500&auto=format&fit=crop') center/cover no-repeat;
+    z-index: 0;
+  }
+  .overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(10,37,64,0.85) 0%, rgba(10,37,64,0.45) 100%);
+    z-index: 1;
+  }
+  .main-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+  .hero {
+    max-width: 700px;
+    animation: fadeIn 0.8s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .logo-block {
+    margin-bottom: 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .logo-block svg {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1rem;
+  }
+  .logo-text {
+    font-size: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: white;
+    line-height: 1;
+  }
+  .logo-text span { color: var(--accent); }
+  .hero h1 {
+    font-size: 2.8rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+  }
+  .hero p {
+    font-size: 1.2rem;
+    color: rgba(255,255,255,0.8);
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+  }
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 0.9rem 2.5rem;
+    border-radius: 40px;
+    font-weight: 600;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: var(--primary);
+    border: none;
+  }
+  .btn-primary:hover { background: #e6bc6a; transform: translateY(-2px); }
+  .btn-outline {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+  .btn-outline:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: white;
+  }
+  .footer-bottom {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+    padding: 1rem;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.85rem;
+    background: rgba(0,0,0,0.15);
+  }
+  .footer-bottom a {
+    color: rgba(255,255,255,0.8);
+    text-decoration: none;
+  }
+  .footer-bottom a:hover { text-decoration: underline; }
+  @media (max-width: 600px) {
+    .hero h1 { font-size: 2rem; }
+    .logo-text { font-size: 2rem; }
+  }
+</style>
 
-<section class="hero">
+<div class="bg-image" aria-hidden="true"></div>
+<div class="overlay" aria-hidden="true"></div>
 
-    <div class="container">
-
-        <div class="hero-content">
-
-            <div class="badge">
-                ● Secure account management
-            </div>
-
-            <h1>
-                Manage your
-                <span>financial journey</span>
-                with confidence.
-            </h1>
-
-            <p>
-                NexaBrokers provides a modern platform for
-                managing your account, tracking transactions,
-                and monitoring your portfolio activity from
-                one secure dashboard.
-            </p>
-
-            <div class="hero-actions">
-
-                <a
-                    href="/signup-page"
-                    class="btn btn-primary"
-                >
-                    Create an Account
-                </a>
-
-                <a
-                    href="/login-page"
-                    class="btn btn-secondary"
-                >
-                    Sign In
-                </a>
-
-            </div>
-
-        </div>
-
+<div class="main-content">
+  <div class="hero">
+    <div class="logo-block">
+      <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="40" height="40" rx="10" fill="white" />
+        <path d="M14 34V14L26 30L34 14V34" stroke="#0a2540" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div class="logo-text">Nexa<span>Brokers</span></div>
     </div>
-
-</section>
-
-
-<section class="section">
-
-    <div class="container">
-
-        <div
-            class="grid grid-3"
-        >
-
-            <div class="card">
-
-                <h3>
-                    Secure Access
-                </h3>
-
-                <p>
-                    Your account is protected with
-                    password hashing, session security,
-                    and email verification.
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <h3>
-                    Simple Dashboard
-                </h3>
-
-                <p>
-                    View your account information,
-                    balance, and transaction activity
-                    from one convenient dashboard.
-                </p>
-
-            </div>
-
-
-            <div class="card">
-
-                <h3>
-                    Transaction Tracking
-                </h3>
-
-                <p>
-                    Keep track of deposits and
-                    withdrawals with clear transaction
-                    statuses and records.
-                </p>
-
-            </div>
-
-        </div>
-
+    <h1>Institutional‑grade trading,<br>built for you</h1>
+    <p>Secure, transparent, and personal — trade crypto, manage your portfolio, and access professional tools from one dashboard.</p>
+    <div class="hero-buttons">
+      <a href="/signup-page" class="btn btn-primary">Create Account</a>
+      <a href="/login-page" class="btn btn-outline">Sign In</a>
     </div>
+  </div>
+</div>
 
-</section>
-
-
-<section class="section">
-
-    <div class="container">
-
-        <div class="card">
-
-            <div class="grid grid-2">
-
-                <div>
-
-                    <div class="badge">
-                        Built for simplicity
-                    </div>
-
-                    <h2>
-                        Everything in one place.
-                    </h2>
-
-                    <p>
-                        From account verification to
-                        transaction management, NexaBrokers
-                        keeps your important account
-                        information organized in a clean,
-                        modern interface.
-                    </p>
-
-                </div>
-
-
-                <div>
-
-                    <h3>
-                        What you can manage
-                    </h3>
-
-                    <p>
-                        ✓ Account information
-                    </p>
-
-                    <p>
-                        ✓ Account verification
-                    </p>
-
-                    <p>
-                        ✓ Deposit requests
-                    </p>
-
-                    <p>
-                        ✓ Withdrawal requests
-                    </p>
-
-                    <p>
-                        ✓ Transaction history
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
-
-<section class="section">
-
-    <div class="container">
-
-        <div class="card">
-
-            <div class="hero-content">
-
-                <div class="badge">
-                    Get started
-                </div>
-
-                <h2>
-                    Ready to create your account?
-                </h2>
-
-                <p>
-                    Create your NexaBrokers account and
-                    access your personal dashboard.
-                </p>
-
-                <div class="hero-actions">
-
-                    <a
-                        href="/signup-page"
-                        class="btn btn-primary"
-                    >
-                        Create Account
-                    </a>
-
-                    <a
-                        href="/login-page"
-                        class="btn btn-secondary"
-                    >
-                        Already registered?
-                    </a>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-</section>
-
+<footer class="footer-bottom">
+  © 2025 NexaBrokers. All rights reserved. &nbsp;|&nbsp;
+  <a href="/privacy">Privacy Policy</a> &nbsp;|&nbsp;
+  <a href="/terms">Terms of Service</a>
+</footer>
 {% endblock %}
